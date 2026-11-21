@@ -29,6 +29,17 @@ button:hover{border-color:var(--wall)}button:focus-visible,input:focus-visible,s
 .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1px solid var(--wall)}
 .ic{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 3px;margin-right:6px;font-size:11px;font-weight:600;color:#fff;border-radius:4px;vertical-align:1px}
 .gl{align-self:center;font-size:13px;color:var(--mute);margin-left:6px}
+.dd{position:relative;display:inline-flex}
+.ddb.open{border-color:var(--ink);background:var(--bg)}
+.menu{position:absolute;top:calc(100% + 4px);left:0;z-index:30;min-width:240px;max-height:60vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:4px;display:flex;flex-direction:column}
+.menu[hidden]{display:none}
+.menu button{border:0;text-align:left;min-height:34px;border-radius:6px;white-space:nowrap}
+.menu button:hover{background:var(--bg)}
+.mat{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;align-items:stretch}
+.mat button{border:0;border-radius:0;min-height:38px;padding:0 10px;border-right:1px solid var(--line)}.mat button:last-child{border-right:0}
+.mat button.on{background:var(--ink);color:var(--paper)}
+.mat button:disabled{opacity:.4;cursor:default}
+.tn .mt{flex:none;font-size:10px;font-weight:600;color:#fff;border-radius:3px;padding:0 4px;line-height:16px}
 .sep{width:1px;background:var(--grid);margin:0 4px}
 .work{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px;padding:10px max(3vw,12px) 12px;align-items:start}
 .wrap{overflow:auto}
@@ -88,7 +99,7 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 <button id="undo">↶ Назад</button>
 <button id="sla" title="Ctrl+A">Виділити все на шарі</button><button id="saa" title="Ctrl+Shift+A">Виділити все на всіх шарах</button>
 <button id="grp" title="Ctrl+G" disabled>Згрупувати</button><button id="ungrp" title="Ctrl+Shift+G" disabled>Розгрупувати</button>
-<button id="mdup" disabled>Копія вибраного</button><button id="mdel" disabled>Видалити вибране</button><span class="gl" id="selc"></span>
+<button id="mdup" disabled>Копія вибраного</button><button id="mdel" disabled>Видалити вибране</button><span class="gl" id="selc"></span><span class="gl">Матеріал:</span><span class="mat" id="mat"><button data-m="metal" disabled>Метал</button><button data-m="wood" disabled>Дерево</button><button data-m="plastic" disabled>Пластик</button><button data-m="glass" disabled>Скло</button><button data-m="" disabled title="Прибрати матеріал">—</button></span>
 <button id="zin" aria-label="Збільшити">+</button><button id="zout" aria-label="Зменшити">−</button>
 <button id="snap">Прив’язка до сітки: ні</button><button id="bgup">Свій план (фото)</button><button id="bgmove">Рухати фон: ні</button><button id="bgdef">Прибрати фото</button><input type="file" id="bgfile" accept="image/*" hidden><label style="display:flex;align-items:center;gap:6px;font-size:13px">Фон<input id="bgop" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
 </div>
@@ -181,6 +192,9 @@ S=fresh();
 try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.show)show={...show,...v.show};if(v&&v.act)act=v.act}catch(e){}
 const cv=document.getElementById("cv"),$=id=>document.getElementById(id);
 const LY=o=>o.ly||"eq";
+const MATS=[["metal","Метал","М","#6b7a89"],["wood","Дерево","Д","#9a5b2e"],["plastic","Пластик","П","#2e86c1"],["glass","Скло","С","#17a589"]];
+const MAT=Object.fromEntries(MATS.map(m=>[m[0],m]));
+const hasMat=o=>LY(o)==="eq"&&!["note","water","room","part","stair"].includes(o.t);
 const GS=20;try{snap=localStorage.getItem("zvir-plan-snap")==="1"}catch(e){}
 function setSel(ids){SEL=new Set(ids);sel=SEL.size===1?[...SEL][0]:null}
 const grpOf=id=>{const o=S.find(x=>x.id===id);return o&&o.gid?S.filter(x=>x.gid===o.gid&&!x.hid&&!x.lk&&!(lockL||{})[LY(x)]).map(x=>x.id):[id]};
@@ -252,10 +266,13 @@ function draw(){
  let g=`<defs><pattern id="gr" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern></defs>${bg.src?`<image href="${bg.src}" x="${bg.x||0}" y="${bg.y||0}" width="${bg.w}" height="${bg.h}" preserveAspectRatio="none" opacity="${bgOp}" pointer-events="none"/>`:""}<rect width="1260" height="1280" fill="url(#gr)" pointer-events="none"/>`;
  const rank=o=>{const l=LY(o);if(l==="wall")return -1;if(l==="eq")return 0;if(o.t==="zone")return 1;if(o.t==="arrow")return 2;return 3};
  const L=S.filter(o=>show[LY(o)]&&!isHid(o)).sort((a,b)=>rank(a)-rank(b)||(LY(a)===act)-(LY(b)===act)||(rank(a)===0?(ORDER[a.t]-ORDER[b.t]||(ORDER[a.t]<=2?b.w*b.h-a.w*a.h:0)):0));
+ const badges=[];
  for(const o of L){
-  const on=LY(o)===act,isSel=SEL.has(o.id);
-  const lk=isLk(o);g+=`<g data-oid="${o.id}" ${(on||isSel)&&!bgMode&&!lk?`data-id="${o.id}" style="cursor:move"`:`${on?"":`opacity=".4"`} pointer-events="none"`}>`;
+  const on=LY(o)===act,isSel=SEL.has(o.id),dimO=!on&&!isSel&&viewL[LY(o)]!=="bright";
+  const lk=isLk(o);g+=`<g data-oid="${o.id}" ${(on||isSel)&&!bgMode&&!lk?`data-id="${o.id}" style="cursor:move"`:`${dimO?`opacity=".35"`:""} pointer-events="none"`}>`;
   g+=o.t==="seg"?drawSeg(o):o.t==="arrow"?drawArrow(o):o.t==="mk"?drawMk(o):o.t==="zone"?drawZone(o):drawEq(o);
+  if(hasMat(o)&&o.m&&MAT[o.m]){const m=MAT[o.m],sz=Math.min(14,o.w/3,o.h/2.5);if(sz>=7)g+=`<rect x="${o.x+o.w-sz-2}" y="${o.y+2}" width="${sz}" height="${sz}" rx="2" fill="${m[3]}" pointer-events="none"/><text x="${o.x+o.w-sz/2-2}" y="${o.y+2+sz/2}" text-anchor="middle" dominant-baseline="central" font-size="${sz*.75}" font-weight="600" fill="#fff">${m[2]}</text>`}
+  if(isSel&&hasMat(o)&&window.__canEdit&&!bgMode)badges.push(o);
   if(isSel&&SEL.size>1){const b=bbox(o);g+=`<rect x="${b.x-5}" y="${b.y-5}" width="${b.w+10}" height="${b.h+10}" fill="none" stroke="var(--sel)" stroke-width="2" stroke-dasharray="6 4" pointer-events="none"/>`}
   else if(isSel){
    if(isLine(o))g+=`<circle data-end="1" cx="${o.x}" cy="${o.y}" r="11" fill="var(--sel)" style="cursor:grab"/><circle data-end="2" cx="${o.x2}" cy="${o.y2}" r="11" fill="var(--sel)" fill-opacity=".85" style="cursor:grab"/>`;
@@ -263,12 +280,16 @@ function draw(){
   }
   g+=`</g>`;
  }
+ if(!(drag&&drag.moved))for(const o of badges){const m=MAT[o.m],t=m?m[1]:"Матеріал?",w=t.length*7.4+30,x=o.x+o.w/2-w/2,y=o.y-34;
+  g+=`<g data-mat="${o.id}" style="cursor:pointer"><rect x="${x}" y="${y}" width="${w}" height="24" rx="12" fill="${m?m[3]:"var(--paper)"}" stroke="${m?m[3]:"var(--mute)"}" stroke-width="1.5"/><text x="${x+12}" y="${y+12.5}" dominant-baseline="central" font-size="13" font-weight="600" fill="${m?"#fff":"var(--mute)"}">${t}</text><text x="${x+w-13}" y="${y+12.5}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="${m?"#fff":"var(--mute)"}">⟳</text></g>`}
  if(drag&&drag.lasso){const L2=drag.lasso,x=Math.min(L2.x0,L2.x1),y=Math.min(L2.y0,L2.y1);g+=`<rect x="${x}" y="${y}" width="${Math.abs(L2.x1-L2.x0)}" height="${Math.abs(L2.y1-L2.y0)}" fill="var(--sel)" fill-opacity=".08" stroke="var(--sel)" stroke-width="1.5" stroke-dasharray="6 4" pointer-events="none"/>`}
  if(bgMode&&bg.src){const bx=bg.x||0,by=bg.y||0;g+=`<rect data-bg="1" x="${bx}" y="${by}" width="${bg.w}" height="${bg.h}" fill="transparent" stroke="var(--sel)" stroke-width="3" stroke-dasharray="10 6" style="cursor:move"/><rect data-bgrz="1" x="${bx+bg.w-14}" y="${by+bg.h-14}" width="28" height="28" rx="5" fill="var(--sel)" style="cursor:nwse-resize"/>`}
  cv.innerHTML=g;cv.style.width=(zoom*100)+"%";
  panel();if(!(drag&&drag.moved&&!drag.lasso))tree();tabs();selbar();setTb();
 }
-function selbar(){const n=SEL.size,os=selObjs();$("selc").textContent=n>1?`Вибрано: ${n}`:"";
+function selbar(){const n=SEL.size,os=selObjs();
+ const mo=os.filter(hasMat),cur=mo.length&&mo.every(o=>(o.m||"")===(mo[0].m||""))?(mo[0].m||""):null;
+ document.querySelectorAll("#mat button").forEach(b=>{b.disabled=!mo.length;b.classList.toggle("on",!!mo.length&&cur!==null&&cur===b.dataset.m&&b.dataset.m!=="")});$("selc").textContent=n>1?`Вибрано: ${n}`:"";
  $("grp").disabled=n<2;$("ungrp").disabled=!os.some(o=>o.gid);$("mdup").disabled=!n;$("mdel").disabled=!n}
 function panel(){
  const o=S.find(x=>x.id===sel),p=$("panel"),isEq=o&&LY(o)==="eq";
@@ -287,9 +308,9 @@ const ICO={eye:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stro
  noeye:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><path d="M2 14L14 2"/></svg>',
  lock:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg>',
  unlock:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015-.5"/></svg>'};
-let lockL={},openL=new Set([act]),closedG=new Set(),tq="",lastSelKey="";
-try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.lockL)lockL=v.lockL;if(v&&v.openL)openL=new Set(v.openL)}catch(e){}
-const saveUI=()=>{try{localStorage.setItem(VKEY,JSON.stringify({show,act,lockL,openL:[...openL]}))}catch(e){}};
+let viewL={},lockL={},openL=new Set([act]),closedG=new Set(),tq="",lastSelKey="";
+try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.lockL)lockL=v.lockL;if(v&&v.viewL)viewL=v.viewL;if(v&&v.openL)openL=new Set(v.openL)}catch(e){}
+const saveUI=()=>{try{localStorage.setItem(VKEY,JSON.stringify({show,act,lockL,viewL,openL:[...openL]}))}catch(e){}};
 const isHid=o=>!!o.hid,isLk=o=>!!o.lk||!!lockL[LY(o)];
 const oname=o=>LY(o)==="eq"?(o.l||"без назви"):((o.l?o.l+" · ":"")+((K[o.k]||[])[2]||""));
 function oicon(o){if(LY(o)==="eq"){const c={room:"var(--wall)",part:"var(--wall)",cage:"var(--tealk)",sink:"var(--bluek)",water:"var(--bluek)",door:"var(--ambk)",note:"var(--mute)"}[o.t]||"var(--mute)";return `<span class="ti" style="background:${c}"></span>`}
@@ -298,12 +319,12 @@ const ib=(kind,on,attrs,ed=true)=>`<button type="button" class="ib${on?" set":""
 function tree(){
  const box=$("tnodes"),q=tq.trim().toLowerCase(),match=o=>!q||oname(o).toLowerCase().includes(q)||(o.gn||"").toLowerCase().includes(q)||(o.n||"").toLowerCase().includes(q);
  const allG=[...new Set(S.filter(o=>o.gid).map(o=>o.gid))],gname=g=>(S.find(o=>o.gid===g&&o.gn)||{}).gn||("Група "+(allG.indexOf(g)+1));
- const row=(o,d)=>`<div class="tn${SEL.has(o.id)?" on":""}${isHid(o)||!show[LY(o)]?" off":""}" style="--d:${d}" data-id="${o.id}"><span class="car x"></span>${oicon(o)}<span class="nm">${esc(oname(o))}</span>${ib("lock",!!o.lk,`data-lk="${o.id}"`)}${ib("eye",isHid(o),`data-hd="${o.id}"`)}</div>`;
+ const row=(o,d)=>`<div class="tn${SEL.has(o.id)?" on":""}${isHid(o)||!show[LY(o)]?" off":""}" style="--d:${d}" data-id="${o.id}"><span class="car x"></span>${oicon(o)}<span class="nm">${esc(oname(o))}</span>${o.m&&MAT[o.m]?`<span class="mt" style="background:${MAT[o.m][3]}" title="${MAT[o.m][1]}">${MAT[o.m][2]}</span>`:""}${ib("lock",!!o.lk,`data-lk="${o.id}"`)}${ib("eye",isHid(o),`data-hd="${o.id}"`)}</div>`;
  let h="",any=false;
  for(const [lid,lname,lcol] of LAYERS){
   const items=S.filter(o=>LY(o)===lid&&match(o));if(q&&!items.length)continue;any=true;
   const open=q?true:openL.has(lid);
-  h+=`<div class="tn layer${lid===act?" act":""}${show[lid]?"":" off"}" style="--d:0" data-l="${lid}"><button type="button" class="car" data-cl="${lid}">${open?"▾":"▸"}</button><span class="ti" style="background:${lcol}"></span><span class="nm">${esc(lname)}</span><span class="ct">${S.filter(o=>LY(o)===lid).length}</span>${ib("lock",!!lockL[lid],`data-ll="${lid}"`)}${ib("eye",!show[lid],`data-lh="${lid}"`,false)}</div>`;
+  h+=`<div class="tn layer${lid===act?" act":""}${show[lid]?"":" off"}" style="--d:0" data-l="${lid}"><button type="button" class="car" data-cl="${lid}">${open?"▾":"▸"}</button><span class="ti" style="background:${lcol}"></span><span class="nm">${esc(lname)}</span><span class="ct">${S.filter(o=>LY(o)===lid).length}</span><button type="button" class="ib${viewL[lid]==="bright"?" set":""}" data-lv="${lid}" title="${viewL[lid]==="bright"?"Яскраво (коли шар не активний). Клік — приглушити":"Приглушено (коли шар не активний). Клік — яскраво"}">${viewL[lid]==="bright"?"●":"◐"}</button>${ib("lock",!!lockL[lid],`data-ll="${lid}"`)}${ib("eye",!show[lid],`data-lh="${lid}"`,false)}</div>`;
   if(!open)continue;
   const gs=[...new Set(items.filter(o=>o.gid).map(o=>o.gid))].sort((a,b)=>gname(a).localeCompare(gname(b),"uk"));
   for(const g of gs){const mem=items.filter(o=>o.gid===g),allm=S.filter(o=>o.gid===g),gk=lid+":"+g,go=q?true:!closedG.has(gk),on=allm.every(o=>SEL.has(o.id));
@@ -326,6 +347,7 @@ $("tnodes").addEventListener("click",e=>{
  if(d.cl){openL.has(d.cl)?openL.delete(d.cl):openL.add(d.cl);saveUI();tree();return}
  if(d.cg){closedG.has(d.cg)?closedG.delete(d.cg):closedG.add(d.cg);tree();return}
  if(d.lh){show[d.lh]=!show[d.lh];setSel([...SEL].filter(i=>show[LY(S.find(x=>x.id===i)||{})]));draw();save();return}
+ if(d.lv){viewL[d.lv]=viewL[d.lv]==="bright"?"dim":"bright";saveUI();draw();return}
  if(d.ll){if(!window.__canEdit)return;lockL[d.ll]=!lockL[d.ll];setSel([...SEL].filter(i=>!isLk(S.find(x=>x.id===i)||{})));saveUI();draw();return}
  if(d.hd){const o=S.find(x=>x.id===+d.hd);setObjs([o],o=>o.hid=!o.hid);return}
  if(d.lk){const o=S.find(x=>x.id===+d.lk);setObjs([o],o=>o.lk=!o.lk);return}
@@ -356,6 +378,7 @@ function tabs(){
 function pt(e){const m=cv.getScreenCTM().inverse(),q=cv.createSVGPoint();q.x=e.clientX;q.y=e.clientY;return q.matrixTransform(m)}
 cv.addEventListener("pointerdown",e=>{
  if(!window.__canEdit)return;
+ const mb=e.target.closest("[data-mat]");if(mb){e.preventDefault();const o=S.find(x=>x.id===+mb.dataset.mat);if(o){push();const order=["",...MATS.map(m=>m[0])],i=order.indexOf(o.m||"");const nx=order[(i+1)%order.length];if(nx)o.m=nx;else delete o.m;draw();save()}return}
  if(bgMode){if(!bg.src)return;const t=e.target.getAttribute("data-bgrz")?"rz":e.target.getAttribute("data-bg")?"mv":null;if(!t)return;
   const p=pt(e);drag={bg:t,px:p.x,py:p.y,ox:bg.x||0,oy:bg.y||0,ow:bg.w,oh:bg.h,moved:false};cv.setPointerCapture(e.pointerId);e.preventDefault();return}
  const rz=e.target.getAttribute("data-rz"),end=e.target.getAttribute("data-end"),g=e.target.closest("[data-id]");
@@ -400,6 +423,7 @@ $("del").onclick=()=>{if(!SEL.size)return;push();S=S.filter(x=>!SEL.has(x.id));s
 $("mdel").onclick=$("del").onclick;
 $("mdup").onclick=()=>{if(!SEL.size)return;push();let id=nid();const gm={},ns=selObjs().map(o=>{const n={...o,id:id++,x:o.x+20,y:o.y+20};if(isLine(o)){n.x2=o.x2+20;n.y2=o.y2+20}if(o.gid)n.gid=gm[o.gid]||(gm[o.gid]=Date.now()+Math.random());return n});S.push(...ns);setSel(ns.map(n=>n.id));draw();save()};
 $("dup").onclick=$("mdup").onclick;
+document.querySelectorAll("#mat button").forEach(b=>b.onclick=()=>{const mo=selObjs().filter(hasMat);if(!mo.length)return;push();mo.forEach(o=>{if(b.dataset.m)o.m=b.dataset.m;else delete o.m});draw();save()});
 $("grp").onclick=()=>{if(SEL.size<2)return;push();const gid=Date.now();selObjs().forEach(o=>o.gid=gid);draw();save()};
 $("ungrp").onclick=()=>{push();selObjs().forEach(o=>{delete o.gid;delete o.gn});draw();save()};
 $("sla").onclick=()=>{show[act]=true;setSel(S.filter(o=>LY(o)===act&&!isHid(o)&&!isLk(o)).map(o=>o.id));draw()};
@@ -416,12 +440,16 @@ document.addEventListener("keydown",e=>{
   const dx=e.key==="ArrowLeft"?-st:e.key==="ArrowRight"?st:0,dy=e.key==="ArrowUp"?-st:e.key==="ArrowDown"?st:0;
   selObjs().forEach(o=>{o.x+=dx;o.y+=dy;if(isLine(o)){o.x2+=dx;o.y2+=dy}});draw();save()}
 });
-const GROUPS={eq:[["Утримання",[["Клітка","cage",60,45],["Бокс з підігрівом","cage",60,50],["Бокс з вентиляцією","cage",60,50],["Великий бокс","cage",80,80]]],
-["Столи",[["Стіл процедурний","eq",80,40],["Стіл адміністративний","eq",100,40],["Стіл операційний","eq",80,40],["Стіл з мийкою","sink",100,40]]],
-["Зберігання",[["Стелаж","eq",80,25],["Шафа","eq",70,30],["Скляна шафа","eq",70,30],["Аптечні полиці","eq",100,25],["Холодильник","eq",40,40]]],
-["Вода",[["Мийка","sink",40,35],["Рукомийник","sink",35,30],["Точка води","water",20,20]]],
-["Техніка",[["Пральна машина","eq",40,40],["Автоклав","eq",40,30],["Рентген","eq",45,65],["Наркозний апарат","eq",60,30],["Аспіратор","eq",35,30],["Інфузомат","eq",30,20]]],
-["Інше",[["Відходи","door",30,30],["Двері","door",50,12],["Напис","note",140,30]]]],
+const GROUPS={eq:[
+["Утримання",[["Клітка мала","cage",50,40],["Клітка середня","cage",60,45],["Клітка велика","cage",80,60],["Бокс з підігрівом","cage",60,50],["Бокс з вентиляцією","cage",60,50],["Кисневий бокс","cage",60,50],["Бокс-ізолятор","cage",70,60],["Вольєр","cage",120,100],["Блок кліток","cage",160,60],["Переноска","cage",40,30]]],
+["Столи",[["Стіл оглядовий","eq",80,45],["Стіл процедурний","eq",80,40],["Стіл операційний","eq",80,45],["Стіл стоматологічний","eq",80,45],["Стіл-ваги","eq",80,45],["Стіл з мийкою","sink",100,40],["Стіл лабораторний","eq",120,50],["Стіл письмовий","eq",100,50]]],
+["Хірургія та анестезія",[["Наркозний апарат","eq",60,40],["Монітор пацієнта","eq",40,30],["Коагулятор","eq",40,30],["Аспіратор","eq",35,30],["Хірургічний світильник","eq",50,50],["Інфузомат","eq",30,20],["Шприцевий насос","eq",30,20],["Кисневий концентратор","eq",40,40],["Інструментальний столик","eq",60,40],["Стоматологічна установка","eq",60,50]]],
+["Діагностика",[["Рентген","eq",60,90],["Проявочна / дигітайзер","eq",50,40],["УЗД","eq",50,50],["ЕКГ","eq",40,30],["Мікроскоп","eq",30,30],["Гематологічний аналізатор","eq",40,35],["Біохімічний аналізатор","eq",45,40],["Центрифуга","eq",35,35],["Ваги підлогові","eq",80,50],["Офтальмоскоп / отоскоп","eq",30,20]]],
+["Стерилізація та миття",[["Автоклав","eq",50,40],["Сухожарова шафа","eq",50,40],["УЗ-мийка інструментів","eq",40,30],["Мийка","sink",40,35],["Рукомийник","sink",35,30],["Ванна для тварин","sink",100,60],["Точка води","water",20,20],["Дозатор антисептика","water",20,20],["Бактерицидна лампа","eq",60,15]]],
+["Зберігання",[["Стелаж","eq",80,30],["Шафа","eq",80,40],["Скляна шафа","eq",80,40],["Аптечна шафа","eq",80,40],["Аптечні полиці","eq",100,25],["Сейф для препаратів","eq",40,40],["Холодильник","eq",50,50],["Холодильник для вакцин","eq",50,50],["Морозильник","eq",60,50],["Візок медичний","eq",50,35],["Шафа для ЗІЗ","eq",60,40]]],
+["Пральня і відходи",[["Пральна машина","eq",50,50],["Сушильна машина","eq",50,50],["Кошик брудної білизни","door",40,40],["Контейнер медвідходів","door",35,35],["Контейнер для гострих","door",25,25],["Бак загальних відходів","door",40,40],["Інвентар для прибирання","eq",50,40]]],
+["Рецепція та офіс",[["Стійка рецепції","eq",160,50],["Диван очікування","eq",120,45],["Стілець","eq",30,30],["Комп'ютер","eq",40,30],["Принтер","eq",35,30],["Ваги на рецепції","eq",60,45]]],
+["Приміщення",[["Кімната","room",300,200],["Перегородка","part",200,140],["Двері","door",50,12],["Сходи","stair",80,80],["Напис","note",140,30]]]],
  wall:[["Стіни",["w_wall","w_part","w_high","w_low","w_win"]],["Проходи",["w_pass","w_door","w_dlock"]]],
  flow:[["Стрілки",["a_pat","a_sus","a_staff","a_clean","a_dirty","a_linen"]],["Точки",["p_in","p_wait","p_tri","p_iso","p_cross","p_hand"]]],
  risk:[["Зони",["z_hi","z_mid","z_lo"]],["Знаки",["r_bio","r_blood","r_aer","r_hair","r_touch","r_wet","r_cross","r_sharp"]]],
@@ -443,20 +471,27 @@ const remember=o=>{if(!o)return;const b=bbox(o);lastPos={x:b.x,y:b.y,h:b.h}};
 function add(n){push();n.id=nid();S.push(n);remember(n);setSel([n.id]);draw();save()}
 function presets(){
  const pz=$("presets");pz.innerHTML="";
- GROUPS[act].forEach(([gname,items])=>{const gl=document.createElement("span");gl.className="gl";gl.textContent=gname+":";pz.appendChild(gl);
+ GROUPS[act].forEach(([gname,items])=>{
+  const dd=document.createElement("span");dd.className="dd";
+  const tb=document.createElement("button");tb.type="button";tb.className="ddb";tb.innerHTML=esc(gname)+' <span class="hint">'+items.length+'</span> ▾';
+  const m=document.createElement("div");m.className="menu";m.hidden=true;
+  tb.onclick=e=>{e.stopPropagation();const was=!m.hidden;document.querySelectorAll(".menu").forEach(x=>x.hidden=true);document.querySelectorAll(".ddb").forEach(x=>x.classList.remove("open"));if(!was){m.hidden=false;tb.classList.add("open")}};
   items.forEach(it=>{const b=document.createElement("button");b.type="button";
    if(act==="eq"){const [lab,t,w,h]=it;b.innerHTML='<span class="sw" style="background:'+SW[t]+(t==="water"?';border-radius:50%':'')+'"></span>'+esc(lab);
-    b.onclick=()=>{const q=spawnPos(w,h);add({t,l:(lab==="Двері"||t==="water")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h})}}
+    b.onclick=()=>{const q=spawnPos(w,h);add({t,l:(lab==="Двері"||t==="water"&&lab==="Точка води")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h})}}
    else{const k=K[it],sh=k[1];
     b.innerHTML=(sh==="seg"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="2" y1="6" x2="24" y2="6" stroke="${k[4]}" stroke-width="${Math.min(6,k[6])}" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/></svg>`:sh==="arrow"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="1" y1="6" x2="17" y2="6" stroke="${k[4]}" stroke-width="3" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/><polygon points="25,6 16,1 16,11" fill="${k[4]}"/></svg>`:sh==="zone"?`<span class="sw" style="background:${k[4]}33;border:2px dashed ${k[4]}"></span>`:`<span class="ic" style="background:${sh==="tri"?"#ffd34d":sh==="doc"?"transparent":k[4]};color:${sh==="tri"?"#1d2326":sh==="doc"?k[4]:"#fff"};${sh==="doc"?`border:1.5px solid ${k[4]}`:""}${sh==="pt"?";border-radius:10px":""}">${esc(k[3])}</span>`)+esc(k[2]);
-    b.title=k[2];
     b.onclick=()=>{
      if(sh==="seg"){const q=spawnPos(160,20);add({ly:act,t:"seg",k:it,l:"",x:q.x,y:q.y,x2:q.x+160,y2:q.y})}
      else if(sh==="arrow"){const q=spawnPos(160,20);add({ly:act,t:"arrow",k:it,l:"",x:q.x,y:q.y,x2:q.x+160,y2:q.y})}
      else if(sh==="zone"){const q=spawnPos(220,140);add({ly:act,t:"zone",k:it,l:"",x:q.x,y:q.y,w:220,h:140})}
      else{const q=spawnPos(34,34);add({ly:act,t:"mk",k:it,l:"",n:"",x:q.x,y:q.y,w:34,h:34})}}}
-   pz.appendChild(b)})});
+   const bb=b.onclick;b.onclick=e=>{e.stopPropagation();bb();m.hidden=true;tb.classList.remove("open")};
+   m.appendChild(b)});
+  dd.append(tb,m);pz.appendChild(dd)});
 }
+document.addEventListener("click",e=>{if(!e.target.closest(".dd")){document.querySelectorAll(".menu").forEach(x=>x.hidden=true);document.querySelectorAll(".ddb").forEach(x=>x.classList.remove("open"))}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".menu").forEach(x=>x.hidden=true)},true);
 $("bgup").onclick=()=>$("bgfile").click();
 $("bgfile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
  const m=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*m);c.height=Math.round(im.height*m);
