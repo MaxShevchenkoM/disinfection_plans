@@ -120,28 +120,98 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 .badge{font-weight:600;font-size:12px;padding:2px 8px;border-radius:6px;background:#c0392b;color:#fff}
 #save{font-weight:500}#save.err{color:#c0392b}
 .status button{min-height:32px;font-size:13px}
+
+/* ===== Fluent-подібний вигляд ===== */
+[hidden]{display:none!important}
+:root{--bg:light-dark(#f3f3f3,#1f1f1f);--paper:light-dark(#ffffff,#2b2b2b);--ink:light-dark(#242424,#f0f0f0);--mute:light-dark(#616161,#adadad);--grid:light-dark(#ebebeb,#383838);--line:light-dark(#d1d1d1,#4a4a4a);--hov:light-dark(#f0f0f0,#383838);--acc:light-dark(#0f6cbd,#479ef5);--accbg:light-dark(#ebf3fc,#0f2f4f);--sel:#e3460b}
+body{font:14px/1.45 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;padding-bottom:26px}
+#cv text{font-family:"Segoe UI",system-ui,sans-serif}
+button{min-height:32px;border-radius:4px;border:1px solid var(--line);padding:0 10px}
+button:hover:not(:disabled){background:var(--hov)}
+button:disabled{opacity:.45;cursor:default}
+.top{background:var(--paper);border-bottom:1px solid var(--line);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.titlebar{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-bottom:1px solid var(--grid)}
+.titlebar .logo{display:inline-flex;color:var(--acc)}.appn{font-size:14px;font-weight:600}
+.sp{flex:1}
+.who{font-size:12px;color:var(--mute);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb{min-height:28px;font-size:13px;border-color:transparent;background:none}
+.tb.ico{width:30px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+#save{font-size:12px;color:var(--mute);font-weight:400}#save.err{color:#c0392b}
+#save button{min-height:24px;font-size:12px}
+.rtabs{display:flex;gap:2px;padding:0 8px;height:36px;align-items:stretch}
+.rtabs button{border:0;background:none;border-radius:0;min-height:0;padding:0 12px;font-size:14px;color:var(--ink);position:relative}
+.rtabs button:hover{background:var(--hov)}
+.rtabs button[aria-selected=true]{font-weight:600}
+.rtabs button[aria-selected=true]::after{content:"";position:absolute;left:12px;right:12px;bottom:3px;height:3px;border-radius:2px;background:var(--acc)}
+.rtabs .file{color:var(--acc)}
+.ribbon{display:flex;align-items:stretch;gap:0;padding:6px 8px 4px;overflow-x:auto;min-height:72px;background:light-dark(#fafafa,#262626);border-top:1px solid var(--grid)}
+.rbg{display:flex;flex-direction:column;justify-content:space-between;padding:0 8px;border-right:1px solid var(--line);flex:none}
+.rbg:last-child{border-right:0}.rbg[hidden]{display:none}
+.rbc{display:flex;align-items:center;gap:2px;flex-wrap:nowrap;min-height:40px}
+.rbl{font-size:11px;color:var(--mute);text-align:center;padding-top:2px;white-space:nowrap}
+.rb{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;background:none;font-size:13px;min-height:32px;padding:0 8px;white-space:nowrap}
+.rb svg{flex:none;color:var(--acc)}
+.rb[aria-pressed=true]{background:var(--accbg);border-color:light-dark(#b4d6fa,#1f5aa0)}
+.zv{font-size:12px;min-width:44px;text-align:center;color:var(--mute)}
+.rng{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);padding:0 6px}.rng input{width:90px}
+#io{width:180px;height:40px;min-height:0;font:11px/1.2 ui-monospace,monospace;border:1px solid var(--line);border-radius:4px;padding:4px;resize:none;background:var(--paper)}
+#ribbon .tabs{padding:0;gap:2px;flex-wrap:nowrap}
+#ribbon .tab{min-height:32px;border-radius:4px;border-color:transparent;background:none;padding:0 2px 0 8px;gap:2px}
+#ribbon .tab:hover{background:var(--hov)}
+#ribbon .tab[aria-current=true]{background:var(--accbg);border-color:light-dark(#b4d6fa,#1f5aa0);box-shadow:inset 0 -2px 0 var(--tc)}
+#ribbon .tab button{min-height:30px;font-size:13px;font-weight:400;border:0}#ribbon .tab button:hover{background:none}
+#ribbon .tab input{width:14px;height:14px;margin:0 4px}
+#ribbon .gl{font-size:12px;padding:0 4px;max-width:420px;white-space:normal;line-height:1.3}
+.ddb{border-color:transparent;background:none;font-size:13px;min-height:32px;padding:0 8px}
+.ddb.open{background:var(--accbg);border-color:light-dark(#b4d6fa,#1f5aa0)}
+.menu{border-radius:8px;box-shadow:0 8px 16px rgba(0,0,0,.14),0 0 2px rgba(0,0,0,.12);border-color:var(--grid)}
+.menu button{min-height:32px;font-size:13px;border-radius:4px}
+.mat{border-radius:4px}.mat button{min-height:30px;font-size:13px;padding:0 9px}.mat button.on{background:var(--acc);color:#fff}
+.work{padding:10px 10px 10px 10px;gap:10px;grid-template-columns:minmax(0,1fr) 320px}
+#cv{border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 1px rgba(0,0,0,.1)}
+.tree{border-radius:6px;border:1px solid var(--grid);box-shadow:0 1px 3px rgba(0,0,0,.08);top:calc(var(--tb,0px) + 10px);max-height:calc(100vh - var(--tb,0px) - 46px)}
+.tree .ts input,#pass select,#pass input,.panel input,.panel select,.panel textarea{border-radius:4px;min-height:32px;font-size:13px;background:var(--paper)}
+.panel{margin:0;border-bottom:1px solid var(--grid);border-radius:6px 6px 0 0;padding:10px;gap:6px}
+.panel input[type=text]{flex:1 1 100%;font-weight:600}
+.panel select{flex:1 1 100%}
+.panel button{font-size:13px}
+.tn.on{background:var(--accbg);border-left-color:var(--acc)}
+.tn{min-height:28px;font-size:13px}
+.cls{border-radius:4px}
+.badge{border-radius:4px;font-size:11px}
+details.pr{border-radius:4px}
+.sbar{position:fixed;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;gap:16px;padding:0 12px;font-size:12px;color:var(--mute);background:light-dark(#f0f0f0,#252525);border-top:1px solid var(--line);z-index:6}
+#result{max-width:none;padding:16px 24px 40px}
+#result>*{max-width:1100px}
+.m-result .work{display:none!important}
+.m-result #result{display:block}
+@media print{.top,.work,.sbar{display:none!important}}
+@media (max-width:900px){.rb span{display:none}.ribbon{min-height:64px}}
 </style>
 </head>
 <body>
-<header><h1>План клініки</h1><span id="envb"></span><span class="hint">Оберіть шар угорі: редагуються лише елементи активного шару, решта видно блідо. Галочка ховає шар. Новий елемент з’являється поруч із тим, що ви створили чи пересунули останнім; якщо те місце не видно на екрані — посередині видимої частини плану. Shift+клік додає об’єкт до виділення, Shift+рамка по порожньому місцю виділяє кілька. Стіни й стрілки тягніть за кінці: стіна сама вирівнюється по горизонталі чи вертикалі й чіпляється до кінців інших стін.</span></header>
-<div class="status"><span id="who">Перегляд</span><button id="login">Увійти для редагування</button><button id="logout" hidden>Вийти</button><span id="save"></span><button id="copyprod" class="edit" hidden>Скопіювати дані з проду в препрод</button></div>
 <div class="top">
-<div class="modes" id="modes"></div>
-<div class="tabs" id="tabs"></div>
-<div class="bar edit" id="bar">
-<span id="presets" style="display:contents"></span>
-<span class="sep"></span>
-<button id="undo">↶ Назад</button>
-<button id="sla" title="Ctrl+A">Виділити все на шарі</button><button id="saa" title="Ctrl+Shift+A">Виділити все на всіх шарах</button>
-<button id="grp" title="Ctrl+G" disabled>Згрупувати</button><button id="ungrp" title="Ctrl+Shift+G" disabled>Розгрупувати</button>
-<button id="mdup" disabled>Копія вибраного</button><button id="mdel" disabled>Видалити вибране</button><span class="gl" id="selc"></span><span class="gl">Матеріал:</span><span class="mat" id="mat"><button data-m="metal" disabled>Метал</button><button data-m="wood" disabled>Дерево</button><button data-m="plastic" disabled>Пластик</button><button data-m="glass" disabled>Скло</button><button data-m="" disabled title="Прибрати матеріал">—</button></span>
-<button id="zin" aria-label="Збільшити">+</button><button id="zout" aria-label="Зменшити">−</button>
-<button id="snap">Прив’язка до сітки: ні</button><button id="bgup">Свій план (фото)</button><button id="bgmove">Рухати фон: ні</button><button id="bgdef">Прибрати фото</button><input type="file" id="bgfile" accept="image/*" hidden><label style="display:flex;align-items:center;gap:6px;font-size:13px">Фон<input id="bgop" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
+<div class="titlebar"><span class="logo"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/><path d="M1.5 6h13M6 6v8.5"/></svg></span><b class="appn">План клініки</b><span id="envb"></span><span class="sp"></span><span id="save"></span><span id="who" class="who">Перегляд</span><button type="button" id="login" class="tb">Увійти</button><button type="button" id="logout" class="tb" hidden>Вийти</button><button type="button" class="tb ico" id="help" title="Шар угорі — що редагується; решта видно блідо. Shift+клік — додати до виділення, Shift+рамка — виділити кілька. Ctrl+A — усе на шарі, Ctrl+G — згрупувати, Ctrl+Z — назад, Esc — зняти виділення. Стіни й стрілки тягніть за кінці."><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.3 6.2a1.8 1.8 0 113 1.4c-.6.4-1.3.8-1.3 1.6M8 11.5v.2"/></svg></button></div>
+<nav class="rtabs" id="rtabs" role="tablist"></nav>
+<div class="ribbon" id="ribbon">
+<div class="rbg" data-rt="rooms zones"><div class="rbc" id="tabs"></div><div class="rbl">Шари</div></div>
+<div class="rbg edit" data-rt="rooms zones"><div class="rbc"><span id="presets" style="display:contents"></span></div><div class="rbl">Вставити</div></div>
+<div class="rbg edit" data-rt="rooms zones"><div class="rbc"><button type="button" class="rb" id="sla" title="Ctrl+A"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke-dasharray="2 2"/></svg><span>На шарі</span></button><button type="button" class="rb" id="saa" title="Ctrl+Shift+A"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="9" height="9" rx="1" stroke-dasharray="2 2"/><rect x="5.5" y="5.5" width="9" height="9" rx="1" stroke-dasharray="2 2"/></svg><span>Усі шари</span></button></div><div class="rbl">Виділити</div></div>
+<div class="rbg edit" data-rt="rooms zones"><div class="rbc"><button type="button" class="rb" id="grp" title="Ctrl+G" disabled><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/><rect x="1" y="1" width="14" height="14" rx="2" stroke-dasharray="2 2"/></svg><span>Згрупувати</span></button><button type="button" class="rb" id="ungrp" title="Ctrl+Shift+G" disabled><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg><span>Розгрупувати</span></button><button type="button" class="rb" id="mdup" disabled><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"/></svg><span>Копія</span></button><button type="button" class="rb" id="mdel" disabled title="Delete"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h10M6 4V2.5h4V4M4.5 4l.7 9.5h5.6L11.5 4"/></svg><span>Видалити</span></button></div><div class="rbl">Упорядкувати</div></div>
+<div class="rbg edit" data-rt="rooms"><div class="rbc"><span class="mat" id="mat"><button data-m="metal" disabled>Метал</button><button data-m="wood" disabled>Дерево</button><button data-m="plastic" disabled>Пластик</button><button data-m="glass" disabled>Скло</button><button data-m="" disabled title="Прибрати матеріал">—</button></span></div><div class="rbl">Матеріал</div></div>
+<div class="rbg edit" data-rt="rooms zones"><div class="rbc"><button type="button" class="rb" id="undo" title="Ctrl+Z"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3L2 6l3 3"/><path d="M2 6h7a4 4 0 010 8H6"/></svg><span>Назад</span></button></div><div class="rbl">Історія</div></div>
+<div class="rbg" data-rt="view"><div class="rbc"><button type="button" class="rb" id="zout"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M14 14l-3.8-3.8M5 7h4"/></svg><span>Зменшити</span></button><span class="zv" id="zval">100%</span><button type="button" class="rb" id="zin"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M14 14l-3.8-3.8M5 7h4M7 5v4"/></svg><span>Збільшити</span></button></div><div class="rbl">Масштаб</div></div>
+<div class="rbg edit" data-rt="view"><div class="rbc"><button type="button" class="rb" id="snap"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h12M2 11h12M5 2v12M11 2v12"/></svg><span>Прив’язка до сітки</span></button></div><div class="rbl">Сітка</div></div>
+<div class="rbg edit" data-rt="view"><div class="rbc"><button type="button" class="rb" id="bgup"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><circle cx="6" cy="6.5" r="1.2"/><path d="M14 11l-4-4-6 6"/></svg><span>Свій план (фото)</span></button><button type="button" class="rb" id="bgmove"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1v14M1 8h14M8 1L6 3M8 1l2 2M8 15l-2-2M8 15l2-2M1 8l2-2M1 8l2 2M15 8l-2-2M15 8l-2 2"/></svg><span>Рухати фон</span></button><button type="button" class="rb" id="bgdef"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>Прибрати фото</span></button><label class="rng">Прозорість<input id="bgop" type="range" min="0.2" max="1" step="0.05" value="0.9"></label><input type="file" id="bgfile" accept="image/*" hidden></div><div class="rbl">Фон</div></div>
+<div class="rbg edit" data-rt="file"><div class="rbc"><button type="button" class="rb" id="fsave"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h8l2 2v9a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M5 2v4h5V2M5 14v-4h6v4"/></svg><span>Зберегти файлом</span></button><button type="button" class="rb" id="fopen"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4.5V12a1 1 0 001 1h10a1 1 0 001-1V6a1 1 0 00-1-1H8L6.5 3H3a1 1 0 00-1 1.5z"/></svg><span>Відкрити файл</span></button><input type="file" id="ffile" accept=".json,application/json" hidden></div><div class="rbl">Файл плану</div></div>
+<div class="rbg edit" data-rt="file"><div class="rbc"><button type="button" class="rb" id="cp"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V3a1 1 0 011-1h7"/></svg><span>Копіювати JSON</span></button><button type="button" class="rb" id="ld"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="10" height="11" rx="1.5"/><path d="M6 3V2h4v1"/></svg><span>Застосувати JSON</span></button><textarea id="io" title="JSON плану без фото — для надсилання"></textarea></div><div class="rbl">Обмін</div></div>
+<div class="rbg edit" data-rt="file"><div class="rbc"><button type="button" class="rb" id="copyprod" hidden><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h7a3 3 0 00.3-6A4 4 0 004 7a2.5 2.5 0 00.5 5z"/></svg><span>З проду в препрод</span></button><button type="button" class="rb" id="rs"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h10M5 10l6-6 2 2-6 6H5z"/></svg><span>Очистити все</span></button></div><div class="rbl">Дані</div></div>
 </div>
 </div>
 <div class="work"><div class="left">
 <div class="wrap" id="wrap"><svg id="cv" viewBox="0 0 1260 1280" role="img" aria-label="План приміщень із шарами, елементи можна перетягувати"></svg></div>
-<div class="panel off edit" id="panel">
+</div>
+<aside class="tree" aria-label="Об’єкти плану"><div class="panel off edit" id="panel">
 <input type="text" id="lbl" placeholder="Оберіть елемент на плані" disabled>
 <select id="typ" disabled><option value="room">Кімната</option><option value="part">Перегородка</option><option value="eq">Обладнання</option><option value="cage">Клітка</option><option value="sink">Раковина</option><option value="water">Вода</option><option value="door">Двері</option><option value="stair">Сходи</option><option value="note">Напис</option></select>
 <select id="knd" disabled hidden></select>
@@ -151,17 +221,11 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 <button id="del" disabled>Видалити</button>
 <textarea id="note" placeholder="Нотатка: що тут відбувається, що зробити, текст інструкції" disabled hidden></textarea>
 </div>
+<div class="ts"><input id="tq" type="search" placeholder="Пошук"></div><div id="tnodes"></div><div id="pass" hidden></div></aside>
 </div>
-<aside class="tree" aria-label="Об’єкти плану"><div class="ts"><input id="tq" type="search" placeholder="Пошук за назвою"></div><div id="tnodes"></div><div id="pass" hidden></div></aside>
-<div id="ztm" class="ztm" hidden></div>
 <section id="result"></section>
-</div>
-<details class="edit"><summary>Зберегти / відкрити план</summary>
-<p class="hint">Файл зберігає всі шари і ваше фото плану, якщо ви його завантажували; його можна відкрити на іншому комп’ютері. Текст нижче — те саме без фото, щоб надіслати мені. Зміни зберігаються в базу автоматично.</p>
-<textarea id="io"></textarea>
-<p><button id="fsave">Зберегти файлом</button> <button id="fopen">Відкрити файл</button><input type="file" id="ffile" accept=".json,application/json" hidden></p>
-<p><button id="cp">Копіювати</button> <button id="ld">Завантажити</button> <button id="rs">Очистити все</button></p>
-</details>
+<div id="ztm" class="ztm" hidden></div>
+<footer class="sbar"><span id="sbmode"></span><span id="sbsel"></span><span class="sp"></span><span id="sbzoom"></span></footer>
 <script>
 {
 const D=[];
@@ -231,7 +295,7 @@ try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.show)show={...show,..
 const cv=document.getElementById("cv"),$=id=>document.getElementById(id);
 const LY=o=>o.ly||"eq";
 const MODES={rooms:["wall","eq"],zones:["zone","flow","risk"],result:[]},MODEN={rooms:"Приміщення",zones:"Зони і рух",result:"Результат"};
-let mode="rooms";
+let mode="rooms",rtab="";
 const ZCOL={green:["Зелена","#1e8449"],yellow:["Жовта","#c29b0c"],red:["Червона","#c0392b"]};
 const CTRL={always:["●","завжди"],event:["◐","за подією"],schedule:["○","за графіком"]};
 let KB={ok:false,zt:[],ztm:{},ot:[],otm:{},mat:[],matm:{},req:[],proc:[],steps:{},sc:[],role:{},cls:{}};
@@ -358,7 +422,7 @@ function selbar(){const n=SEL.size,os=selObjs();
  document.querySelectorAll("#mat button").forEach(b=>{b.disabled=!mo.length;b.classList.toggle("on",!!mo.length&&cur!==null&&cur===b.dataset.m&&b.dataset.m!=="")});$("selc").textContent=n>1?`Вибрано: ${n}`:"";
  $("grp").disabled=n<2;$("ungrp").disabled=!os.some(o=>o.gid);$("mdup").disabled=!n;$("mdel").disabled=!n}
 function panel(){
- const o=S.find(x=>x.id===sel),p=$("panel"),isEq=o&&LY(o)==="eq";p.style.display=act==="zone"?"none":"";
+ const o=S.find(x=>x.id===sel),p=$("panel"),isEq=o&&LY(o)==="eq";p.style.display=(act==="zone"||!o)?"none":"";
  p.classList.toggle("off",!o);for(const id of["lbl","typ","knd","rot","dup","del","note","oti"])$(id).disabled=!o;if(!o)$("oti").hidden=true;
  $("typ").hidden=!!o&&!isEq;$("knd").hidden=!o||isEq;$("note").hidden=!o||isEq;$("rot").hidden=!!o&&(isLine(o)||o.t==="mk");
  if(!o){$("lbl").value="";$("lbl").placeholder="Оберіть елемент на плані";return}
@@ -504,8 +568,13 @@ $("tnodes").addEventListener("dblclick",e=>{
 });
 const setTb=()=>document.documentElement.style.setProperty("--tb",document.querySelector(".top").offsetHeight+"px");addEventListener("resize",setTb);
 function tabs(){
- $("modes").innerHTML=Object.keys(MODES).map(m=>`<button type="button" data-mode="${m}" aria-current="${m===mode}">${MODEN[m]}</button>`).join("");
- $("modes").querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(mode===b.dataset.mode)return;mode=b.dataset.mode;if(MODES[mode].length){act=MODES[mode][0];show[act]=true;openL.add(act)}document.body.classList.toggle("m-result",mode==="result");if(mode==="result")result();setSel([]);$("ztm").hidden=true;presets();draw();save()});
+ const RT=[["file","Файл"],["rooms","Приміщення"],["zones","Зони і рух"],["result","Результат"],["view","Вигляд"]];
+ if(!rtab)rtab=mode;
+ $("rtabs").innerHTML=RT.map(([k,n])=>`<button type="button" role="tab" class="${k==="file"?"file":""}" data-rt="${k}" aria-selected="${k===rtab}">${n}</button>`).join("");
+ document.querySelectorAll("#ribbon .rbg").forEach(g=>g.hidden=!g.dataset.rt.split(" ").includes(rtab));
+ $("sbmode").textContent=MODEN[mode]+(MODES[mode].length?" · шар «"+(LAYERS.find(l=>l[0]===act)||[,""])[1]+"»":"");
+ $("sbsel").textContent=SEL.size?"Виділено: "+SEL.size:"";$("sbzoom").textContent=Math.round(zoom*100)+"%";$("zval").textContent=Math.round(zoom*100)+"%";
+ $("rtabs").querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const k=b.dataset.rt;rtab=k;if(!MODES[k]||mode===k){tabs();setTb();return}mode=k;if(MODES[mode].length){act=MODES[mode][0];show[act]=true;openL.add(act)}document.body.classList.toggle("m-result",mode==="result");if(mode==="result")result();setSel([]);$("ztm").hidden=true;presets();draw();save();setTb()});
  $("tabs").innerHTML=LAYERS.filter(l=>MODES[mode].includes(l[0])).map(([id,n,c])=>{const cnt=S.filter(o=>LY(o)===id).length;return `<span class="tab" style="--tc:${c}" aria-current="${id===act}"><button type="button" data-tab="${id}">${esc(n)} <span class="hint">${cnt}</span></button><input type="checkbox" data-vis="${id}" ${show[id]?"checked":""} aria-label="Показувати шар ${esc(n)}"></span>`}).join("");
  $("tabs").querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{act=b.dataset.tab;show[act]=true;openL.add(act);setSel([]);presets();draw();save()});
  $("tabs").querySelectorAll("[data-vis]").forEach(c=>c.onchange=()=>{show[c.dataset.vis]=c.checked;setSel([...SEL].filter(i=>show[LY(S.find(x=>x.id===i)||{})]));draw();save()});
@@ -649,11 +718,12 @@ $("bgfile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new File
  const m=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*m);c.height=Math.round(im.height*m);
  c.getContext("2d").drawImage(im,0,0,c.width,c.height);const src=c.toDataURL("image/jpeg",.82),s=Math.min(960/c.width,1280/c.height);
  bg={src,x:0,y:0,w:Math.round(c.width*s),h:Math.round(c.height*s)};draw();save()};im.src=r.result};r.readAsDataURL(f);e.target.value=""};
-$("bgmove").onclick=()=>{bgMode=!bgMode;setSel([]);$("bgmove").textContent="Рухати фон: "+(bgMode?"так":"ні");$("bgmove").style.borderColor=bgMode?"var(--sel)":"";draw()};
+$("bgmove").onclick=()=>{bgMode=!bgMode;setSel([]);$("bgmove").setAttribute("aria-pressed",bgMode);draw()};
 $("bgdef").onclick=()=>{bg={src:"",w:960,h:1280};draw();save()};
-$("fsave").onclick=async()=>{const txt=JSON.stringify({v:2,items:S,bg:bg.src?bg:null}),b=$("fsave"),old="Зберегти файлом";
+const flash=(b,t)=>{const sp=b.querySelector("span")||b,o=sp.textContent;sp.textContent=t;setTimeout(()=>sp.textContent=o,2200)};
+$("fsave").onclick=async()=>{const txt=JSON.stringify({v:2,items:S,bg:bg.src?bg:null}),b=$("fsave"),old=null;
  let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
- if(dl){try{await dl.save({filename:"plan-kliniky.json",data:txt});b.textContent="Збережено"}catch(e){b.textContent=e&&e.code==="declined"?"Скасовано":"Не вдалося зберегти"}setTimeout(()=>b.textContent=old,2500);return}
+ if(dl){try{await dl.save({filename:"plan-kliniky.json",data:txt});flash(b,"Збережено")}catch(e){flash(b,e&&e.code==="declined"?"Скасовано":"Не вдалося зберегти")}return}
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"application/json"}));a.download="plan-kliniky.json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)};
 $("fopen").onclick=()=>$("ffile").click();
 $("ffile").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const v=JSON.parse(t),items=Array.isArray(v)?v:v.items;if(!Array.isArray(items))throw 0;push();S=items;setSel([]);
@@ -662,10 +732,10 @@ document.getElementById("bgop").oninput=e=>{bgOp=+e.target.value;draw()};
 $("undo").onclick=()=>{const h=hist.pop();if(h){S=JSON.parse(h);setSel([...SEL].filter(i=>S.some(x=>x.id===i)));draw();save()}};
 $("zin").onclick=()=>{zoom=Math.min(3,zoom+.25);draw()};
 $("zout").onclick=()=>{zoom=Math.max(.5,zoom-.25);draw()};
-const snapLbl=()=>{$("snap").textContent="Прив’язка до сітки: "+(snap?"так":"ні");$("snap").style.borderColor=snap?"var(--sel)":""};snapLbl();
+const snapLbl=()=>{$("snap").setAttribute("aria-pressed",snap)};snapLbl();
 $("snap").onclick=()=>{snap=!snap;try{localStorage.setItem("zvir-plan-snap",snap?"1":"0")}catch(e){}snapLbl();if(snap&&SEL.size){push();selObjs().forEach(o=>{o.x=sn(o.x);o.y=sn(o.y);if(isLine(o)){o.x2=sn(o.x2);o.y2=sn(o.y2)}else if(o.t!=="mk"){o.w=Math.max(GS,sn(o.w));o.h=Math.max(GS,sn(o.h))}});draw();save()}};
-$("cp").onclick=()=>{try{navigator.clipboard.writeText($("io").value).then(()=>{$("cp").textContent="Скопійовано"},()=>{$("io").select()})}catch(e){$("io").select()}};
-$("ld").onclick=()=>{try{const v=JSON.parse($("io").value);if(Array.isArray(v)){push();S=v;setSel([]);draw();save()}}catch(e){$("ld").textContent="Помилка в тексті"}};
+$("cp").onclick=()=>{try{navigator.clipboard.writeText($("io").value).then(()=>{flash($("cp"),"Скопійовано")},()=>{$("io").select()})}catch(e){$("io").select()}};
+$("ld").onclick=()=>{try{const v=JSON.parse($("io").value);if(Array.isArray(v)){push();S=v;setSel([]);draw();save()}}catch(e){flash($("ld"),"Помилка в тексті")}};
 $("rs").onclick=()=>{if(!confirm("Очистити план? Усі елементи буде видалено."))return;push();S=fresh();setSel([]);draw();save()};
 if(!GROUPS[act])act="eq";
 if(innerWidth<700)zoom=2;
