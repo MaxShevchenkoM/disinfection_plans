@@ -33,6 +33,20 @@ button:hover{border-color:var(--wall)}button:focus-visible,input:focus-visible,s
 .modes button{min-height:38px;font-weight:600;border-radius:8px 8px 0 0;border-bottom-width:3px}
 .modes button[aria-current=true]{border-color:var(--ink);border-bottom-color:var(--sel);background:var(--paper)}
 #pass[hidden]{display:none}
+#result{display:none;padding:12px max(3vw,12px) 40px;max-width:1100px}
+.m-result #result{display:block}.m-result .work,.m-result #bar,.m-result #tabs{display:none!important}
+#result h3{margin:20px 0 8px;font-size:15px}#result table{background:var(--paper);border-radius:8px}
+.ctl{display:inline-block;width:14px;text-align:center;color:var(--ink);flex:none}
+details.pr{border:1px solid var(--grid);border-radius:8px;margin:4px 0;background:var(--paper)}
+details.pr summary{display:flex;gap:8px;align-items:baseline;padding:6px 8px;cursor:pointer;flex-wrap:wrap}
+details.pr .pn{font-weight:500}.pd{padding:0 10px 8px 30px;font-size:13px}.pd ol.steps{margin:6px 0 0;padding-left:18px}
+.rgh{font-size:12px;font-weight:600;color:var(--mute);margin:8px 0 2px;text-transform:uppercase;letter-spacing:.03em}
+.rq{display:flex;gap:6px;align-items:baseline;font-size:13px;padding:2px 0}.rq .put{margin-left:auto;min-height:26px;font-size:12px;padding:0 8px}
+.rg-miss .rgh{color:#c0392b}.rg-ok{opacity:.6}
+details.mats summary,details.sec summary{cursor:pointer;font-size:13px}details.sec summary h3{display:inline}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.chip{font-size:12px;border:1px solid var(--line);border-radius:12px;padding:2px 8px;display:inline-flex;gap:4px;align-items:center;min-width:0!important;color:var(--ink)!important}
+#pass select.scen,#result select.scen{min-height:34px;border:1px solid var(--line);border-radius:8px;padding:0 8px;background:var(--bg)}
+@media print{.top,header,.work,.status,details.edit{display:none!important}#result{display:block!important}details.rz,details.pr{break-inside:avoid}details.pr .pd{display:block}}
 #pass{overflow:auto;padding:12px;display:flex;flex-direction:column;gap:12px}
 #pass h3{margin:0;font-size:13px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
 #pass .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -131,6 +145,7 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 <input type="text" id="lbl" placeholder="Оберіть елемент на плані" disabled>
 <select id="typ" disabled><option value="room">Кімната</option><option value="part">Перегородка</option><option value="eq">Обладнання</option><option value="cage">Клітка</option><option value="sink">Раковина</option><option value="water">Вода</option><option value="door">Двері</option><option value="stair">Сходи</option><option value="note">Напис</option></select>
 <select id="knd" disabled hidden></select>
+<select id="oti" disabled hidden title="Тип об’єкта для правил дезінфекції"></select>
 <button id="rot" disabled>Повернути 90°</button>
 <button id="dup" disabled>Копія</button>
 <button id="del" disabled>Видалити</button>
@@ -139,6 +154,7 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 </div>
 <aside class="tree" aria-label="Об’єкти плану"><div class="ts"><input id="tq" type="search" placeholder="Пошук за назвою"></div><div id="tnodes"></div><div id="pass" hidden></div></aside>
 <div id="ztm" class="ztm" hidden></div>
+<section id="result"></section>
 </div>
 <details class="edit"><summary>Зберегти / відкрити план</summary>
 <p class="hint">Файл зберігає всі шари і ваше фото плану, якщо ви його завантажували; його можна відкрити на іншому комп’ютері. Текст нижче — те саме без фото, щоб надіслати мені. Зміни зберігаються в базу автоматично.</p>
@@ -214,15 +230,16 @@ S=fresh();
 try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.show)show={...show,...v.show};if(v&&v.act)act=v.act}catch(e){}
 const cv=document.getElementById("cv"),$=id=>document.getElementById(id);
 const LY=o=>o.ly||"eq";
-const MODES={rooms:["wall","eq"],zones:["zone","flow","risk"]},MODEN={rooms:"Приміщення",zones:"Зони і рух"};
+const MODES={rooms:["wall","eq"],zones:["zone","flow","risk"],result:[]},MODEN={rooms:"Приміщення",zones:"Зони і рух",result:"Результат"};
 let mode="rooms";
-const CLS=[["Низький","#1e8449"],["Середній","#2e86c1"],["Високий","#d68910"],["Критичний","#c0392b"]];
-/* чернетка типів зон — замінимо довідником з бази */
-const ZT=[["asept","Асептична",3],["prep","Підготовка до втручання",2],["hold","Утримання тварин",2],["manip","Маніпуляційна",2],["dirtywet","Брудна мокра",2],["cleanprep","Чиста підготовка",1],["dirtystore","Брудне зберігання",2],["util","Господарська",1],["staff","Робоче місце персоналу",0],["client","Контакт із клієнтом",1],["transit","Транзит",1]];
-const ZTM=Object.fromEntries(ZT.map(z=>[z[0],z]));
-const FLOORS=["Плитка керамічна","Керамограніт","Лінолеум","ПВХ-покриття","Полімерна (епоксидна) підлога","Ламінат","Бетон","Дерево"];
-const WALLS=["Фарба миюча","Фарба звичайна","Кахель","ПВХ-панелі","Пластикові панелі","Шпалери","Гіпсокартон фарбований"];
-const zcls=z=>z.cls!=null&&z.cls!==""?+z.cls:(ZTM[z.zt]?ZTM[z.zt][2]:null);
+const ZCOL={green:["Зелена","#1e8449"],yellow:["Жовта","#c29b0c"],red:["Червона","#c0392b"]};
+const CTRL={always:["●","завжди"],event:["◐","за подією"],schedule:["○","за графіком"]};
+let KB={ok:false,zt:[],ztm:{},ot:[],otm:{},mat:[],matm:{},req:[],proc:[],steps:{},sc:[],role:{},cls:{}};
+let scen="";
+const zcol=z=>z.co||(KB.ztm[z.zt]||{}).color||null;
+const zname=z=>z.nm||(KB.ztm[z.zt]||{}).name||"Зона без типу";
+const LBL2OT={"клітка":"cage","клітка мала":"cage","клітка середня":"cage","клітка велика":"cage","блок кліток":"cage","вольєр":"cage","бокс-ізолятор":"cage","великий бокс":"cage","кисневий бокс":"heated_box","бокс з підігрівом":"heated_box","бокс з вентиляцією":"heated_box","стіл оглядовий":"exam_table","стіл огляду":"exam_table","стіл процедурний":"proc_table","стіл стоматологічний":"proc_table","стіл операційний":"or_table","стіл-ваги":"scale","ваги":"scale","ваги підлогові":"scale","ваги на рецепції":"scale","мийка":"sink","рукомийник":"sink","стіл з мийкою":"sink","ванна для тварин":"sink","пральна машина":"washer","стіл адміністративний":"admin_desk","стійка рецепції":"admin_desk","стіл письмовий":"admin_desk","ламінар / бокс біобезпеки":"bsc","контейнер медвідходів":"waste_bin","контейнер для відходів":"waste_bin","бак загальних відходів":"waste_bin","контейнер для гострих":"sharps","кошик брудної білизни":"linen_bins","дозатор антисептика":"hand_disp","інвентар для прибирання":"mop"};
+const otiOf=o=>o.oti!==undefined?o.oti:(LBL2OT[(o.ot||o.l||"").toLowerCase()]||null);
 const absR=z=>(z.r||[]).map(a=>({x:z.x+a[0],y:z.y+a[1],w:a[2],h:a[3]}));
 function setAbs(z,rs){z.r=[];if(!rs.length){return}const mx=Math.min(...rs.map(r=>r.x)),my=Math.min(...rs.map(r=>r.y));z.x=mx;z.y=my;z.r=rs.map(r=>[r.x-mx,r.y-my,r.w,r.h]);z.w=Math.max(...rs.map(r=>r.x+r.w))-mx;z.h=Math.max(...rs.map(r=>r.y+r.h))-my}
 function clipR(r,R2){if(r.x>=R2.x+R2.w||r.x+r.w<=R2.x||r.y>=R2.y+R2.h||r.y+r.h<=R2.y)return r;
@@ -305,9 +322,9 @@ function drawSeg(o){
  if(o.l)g+=halo((o.x+o.x2)/2,(o.y+o.y2)/2-10,o.l,13,"middle",c);
  return g}
 const isLine=o=>o.t==="arrow"||o.t==="seg";
-function drawZZ(o){const c=zcls(o),col=c!=null?CLS[c][1]:"#7d3c98",rs=absR(o);if(!rs.length)return"";
+function drawZZ(o){const c=zcol(o),col=c?ZCOL[c][1]:"#7d3c98",rs=absR(o);if(!rs.length)return"";
  let g=rs.map(r=>`<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="${col}" fill-opacity=".13" stroke="${col}" stroke-width="2" stroke-dasharray="9 5"/>`).join("");
- const t=o.nm||(ZTM[o.zt]?ZTM[o.zt][1]:"Зона без типу");g+=halo(rs[0].x+8,rs[0].y+20,t,14,"start",col);return g}
+ const t=zname(o);g+=halo(rs[0].x+8,rs[0].y+20,t,14,"start",col);return g}
 function bbox(o){if(isLine(o))return{x:Math.min(o.x,o.x2),y:Math.min(o.y,o.y2),w:Math.abs(o.x2-o.x),h:Math.abs(o.y2-o.y)};return o}
 function draw(){
  let g=`<defs><pattern id="gr" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern></defs>${bg.src?`<image href="${bg.src}" x="${bg.x||0}" y="${bg.y||0}" width="${bg.w}" height="${bg.h}" preserveAspectRatio="none" opacity="${bgOp}" pointer-events="none"/>`:""}<rect width="1260" height="1280" fill="url(#gr)" pointer-events="none"/>`;
@@ -342,12 +359,12 @@ function selbar(){const n=SEL.size,os=selObjs();
  $("grp").disabled=n<2;$("ungrp").disabled=!os.some(o=>o.gid);$("mdup").disabled=!n;$("mdel").disabled=!n}
 function panel(){
  const o=S.find(x=>x.id===sel),p=$("panel"),isEq=o&&LY(o)==="eq";p.style.display=act==="zone"?"none":"";
- p.classList.toggle("off",!o);for(const id of["lbl","typ","knd","rot","dup","del","note"])$(id).disabled=!o;
+ p.classList.toggle("off",!o);for(const id of["lbl","typ","knd","rot","dup","del","note","oti"])$(id).disabled=!o;if(!o)$("oti").hidden=true;
  $("typ").hidden=!!o&&!isEq;$("knd").hidden=!o||isEq;$("note").hidden=!o||isEq;$("rot").hidden=!!o&&(isLine(o)||o.t==="mk");
  if(!o){$("lbl").value="";$("lbl").placeholder="Оберіть елемент на плані";return}
  $("lbl").placeholder=isEq?"Назва":"Підпис на плані (можна порожнім)";
  if(document.activeElement!==$("lbl"))$("lbl").value=o.l||"";
- if(isEq){$("typ").value=o.t;return}
+ $("oti").hidden=!isEq;if(isEq){$("typ").value=o.t;$("oti").value=otiOf(o)||"";return}
  const grp=v=>["arrow","zone","seg"].includes(v)?v:"mk",og=o.t==="mk"?"mk":o.t;const opts=Object.entries(K).filter(([kk,v])=>v[0]===LY(o)&&grp(v[1])===og);
  $("knd").innerHTML=opts.map(([kk,v])=>`<option value="${kk}">${v[3]?v[3]+" — ":""}${v[2]}</option>`).join("");$("knd").value=o.k;
  if(document.activeElement!==$("note"))$("note").value=o.n||"";
@@ -358,7 +375,7 @@ const ICO={eye:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stro
  lock:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg>',
  unlock:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015-.5"/></svg>'};
 let viewL={},lockL={},openL=new Set([act]),closedG=new Set(),tq="",lastSelKey="";
-try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.lockL)lockL=v.lockL;if(v&&MODES[v.mode])mode=v.mode;if(!MODES[mode].includes(act))act=MODES[mode][0];if(v&&v.viewL)viewL=v.viewL;if(v&&v.openL)openL=new Set(v.openL)}catch(e){}
+try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.lockL)lockL=v.lockL;if(v&&MODES[v.mode])mode=v.mode;if(mode==="result")mode="rooms";if(!MODES[mode].includes(act))act=MODES[mode][0];if(v&&v.viewL)viewL=v.viewL;if(v&&v.openL)openL=new Set(v.openL)}catch(e){}
 const saveUI=()=>{try{localStorage.setItem(VKEY,JSON.stringify({show,act,mode,lockL,viewL,openL:[...openL]}))}catch(e){}};
 const isHid=o=>!!o.hid,isLk=o=>!!o.lk||!!lockL[LY(o)];
 const oname=o=>LY(o)==="eq"?(o.l||"без назви"):((o.l?o.l+" · ":"")+((K[o.k]||[])[2]||""));
@@ -389,39 +406,70 @@ function tree(){
  const key=[...SEL].join(",");if(key!==lastSelKey){lastSelKey=key;const el=box.querySelector(".tn.on");if(el){const r=el.getBoundingClientRect(),br=box.getBoundingClientRect();if(r.top<br.top||r.bottom>br.bottom)el.scrollIntoView({block:"nearest"})}}
 }
 function inZ(o,z){const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;return absR(z).some(r=>cx>=r.x&&cx<=r.x+r.w&&cy>=r.y&&cy<=r.y+r.h)}
-function pass(){const box=$("pass");if(mode!=="zones")return;if(box.contains(document.activeElement)&&document.activeElement.tagName==="INPUT")return;
- const ed=!!window.__canEdit,z=SEL.size===1?S.find(x=>x.id===sel&&x.t==="zz"):null,zs=S.filter(o=>o.t==="zz");
- const opt=(arr,v,emp)=>`<option value="">${emp}</option>`+arr.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("");
- const tag=c=>c!=null?`<span class="cls" style="background:${CLS[c][1]}">${CLS[c][0]}</span>`:`<span class="cls" style="background:#999">без класу</span>`;
- if(!z){box.innerHTML=`<h3>Зони: ${zs.length}</h3>`+(zs.length?zs.map(q=>`<div class="zl" data-z="${q.id}">${tag(zcls(q))}<span>${esc(q.nm||(ZTM[q.zt]?ZTM[q.zt][1]:"Зона без типу"))}</span></div>`).join(""):`<div class="pl">Перейдіть на шар «Зони» і тягніть мишкою по плану, щоб намалювати першу зону.</div>`);
-  box.querySelectorAll("[data-z]").forEach(d=>d.onclick=()=>{if(act!=="zone"){act="zone";presets()}setSel([+d.dataset.z]);draw()});return}
- const c=zcls(z),tc=ZTM[z.zt]?ZTM[z.zt][2]:null,ov=z.cls!=null&&z.cls!=="";
- const objs=S.filter(o=>LY(o)==="eq"&&!isHid(o)&&inZ(o,z)),cnt={};objs.forEach(o=>{const k=(o.ot||o.l||"без назви").toLowerCase();cnt[k]=(cnt[k]||0)+1});
- const mats={};objs.filter(o=>o.m&&MAT[o.m]).forEach(o=>mats[MAT[o.m][1]]=(mats[MAT[o.m][1]]||0)+1);const wet=objs.filter(o=>o.t==="sink"||o.t==="water").length;
- const dis=ed?"":" disabled";
- box.innerHTML=`<div class="row">${tag(c)}<span class="hint">${z.r.length} прямок.</span><button type="button" id="zback" style="margin-left:auto;min-height:30px;font-size:13px">← Усі зони</button></div>
- <input class="zn" id="znm" placeholder="${esc(ZTM[z.zt]?ZTM[z.zt][1]:"Назва зони")}" value="${esc(z.nm||"")}"${dis}>
- <div class="row"><label>Тип</label><select id="zzt"${dis}><option value="">— не вибрано —</option>${ZT.map(t=>`<option value="${t[0]}"${t[0]===z.zt?" selected":""}>${esc(t[1])}</option>`).join("")}</select></div>
- <div class="row"><label>Клас</label><select id="zcl"${dis}><option value="">з типу${tc!=null?" ("+CLS[tc][0].toLowerCase()+")":""}</option>${CLS.map((k,i)=>`<option value="${i}"${ov&&+z.cls===i?" selected":""}>${k[0]}</option>`).join("")}</select></div>
- ${ov?`<div class="row"><label>Причина</label><input id="zwhy" value="${esc(z.why||"")}" placeholder="Чому клас змінено вручну"${dis}></div>`:""}
- <div class="row"><label>Підлога</label><select id="zfl"${dis}>${opt(FLOORS,z.fl,"— не задано —")}</select></div>
- <div class="row"><label>Стіни</label><select id="zwl"${dis}>${opt(WALLS,z.wl,"— не задано —")}</select></div>
- <h3>Вміст: ${objs.length}</h3>${objs.length?`<ul>${Object.entries(cnt).sort().map(([k,v])=>`<li>${esc(k)}${v>1?" × "+v:""}</li>`).join("")}</ul>`:`<div class="pl">В зоні немає обладнання (рахується за центром об’єкта).</div>`}
- <div class="row hint">Мокрих точок: ${wet}${Object.keys(mats).length?" · "+Object.entries(mats).map(([k,v])=>k+" "+v).join(", "):""}</div>
- <h3>Ризики</h3><div class="pl">Пропозиції з’являться, коли підключимо правила.</div>
- <h3>Процедури</h3><div class="pl">Стандартні процедури підтягнуться з бази правил.</div>
- <h3>Підготувати</h3><div class="pl">Підрахунок матеріалів — після правил.</div>
- ${ed?`<div class="row"><button type="button" id="zdelr"${z.r.length<2?" disabled":""}>Прибрати останній прямокутник</button><button type="button" id="zdel">Видалити зону</button></div>`:""}`;
+function zoneEval(z){
+ const col=zcol(z),objs=S.filter(o=>LY(o)==="eq"&&!isHid(o)&&inZ(o,z)),types=new Set(objs.map(otiOf).filter(Boolean));
+ const fm=z.fm||[],wm=z.wm||[],matOk=m=>!m||fm.includes(m)||wm.includes(m);
+ const zMatch=r=>r.zone_type_id?r.zone_type_id===z.zt:(!r.color||r.color===col);
+ const has=t=>{const ot=KB.otm[t];return types.has(t)||(ot&&ot.is_inventory)};
+ const procs=KB.proc.filter(p=>zMatch(p)&&(!p.object_type_id||(p.zone_type_id?has(p.object_type_id):types.has(p.object_type_id)))&&matOk(p.material_id)&&(!p.scenario_id||p.scenario_id===scen));
+ const cnt=t=>objs.filter(o=>otiOf(o)===t).length;
+ const qty=t=>t==="status_card"?Math.max(1,["cage","heated_box","exam_table","proc_table","or_table"].reduce((a,k)=>a+cnt(k),0)):t==="patient_tag"?Math.max(1,cnt("cage")+cnt("heated_box")):1;
+ const LBLS=new Set(["zone_sign","floor_tape","status_card","patient_tag"]);
+ const reqs=KB.req.filter(zMatch).map(r=>{const ot=r.object_type_id?KB.otm[r.object_type_id]:null;let st;
+  if(r.kind==="інструктаж")st="train";else if(!ot)st="check";else if(ot.is_inventory||LBLS.has(ot.id))st="prep";else st=types.has(ot.id)?"ok":"miss";
+  return {...r,st,qty:st==="prep"?qty(ot.id):0}});
+ return {col,objs,types,procs,reqs}}
+function stepsHtml(p){const st=KB.steps[p.id]||[];return `<ol class="steps">${st.map(x=>`<li>${esc(x.action)}${x.class_id?` <span class="hint">· ${esc((KB.cls[x.class_id]||{}).name_uk||x.class_id)}${x.conc_text?" · "+esc(x.conc_text):""}${x.contact_min?" · "+x.contact_min+" хв":""}</span>`:""}${x.alternatives?` <span class="hint">(або: ${esc(x.alternatives)})</span>`:""}</li>`).join("")}</ol>`}
+const ctl=l=>CTRL[l]?`<span class="ctl" title="${CTRL[l][1]}">${CTRL[l][0]}</span>`:"";
+const ctag=c=>c?`<span class="cls" style="background:${ZCOL[c][1]}">${ZCOL[c][0]}</span>`:`<span class="cls" style="background:#999">без типу</span>`;
+function procHtml(p){return `<details class="pr"><summary>${ctl(p.control_level)}<span class="pn">${esc(p.name)}</span><span class="hint">${esc(p.frequency||p.trigger||"")}</span></summary><div class="pd">${p.scenario_id?`<div><b>Сценарій:</b> ${esc((KB.sc.find(x=>x.id===p.scenario_id)||{}).name||p.scenario_id)}</div>`:""}<div><b>Хто:</b> ${esc(KB.role[p.role_id]||p.role_id||"—")}${p.ppe?` · <b>ЗІЗ:</b> ${esc(p.ppe)}`:""}</div>${p.trigger&&p.frequency?`<div><b>Коли:</b> ${esc(p.trigger)}</div>`:""}${stepsHtml(p)}</div></details>`}
+const KINDS=["профілактична","поточна","заключна","контроль"];
+function scenSel(id){return `<select id="${id}" class="scen"><option value="">Звичайний режим</option>${KB.sc.map(x=>`<option value="${x.id}"${x.id===scen?" selected":""}>Тривога: ${esc(x.name)}</option>`).join("")}</select>`}
+function pass(){const box=$("pass");if(mode!=="zones")return;{const ae=document.activeElement;if(box.contains(ae)&&ae.tagName==="INPUT"&&ae.type!=="checkbox")return}
+ if(!KB.ok){box.innerHTML=`<div class="pl">Завантажую базу знань…</div>`;return}
+ const ed=!!window.__canEdit,z=SEL.size===1?S.find(x=>x.id===sel&&x.t==="zz"):null,zs=S.filter(o=>o.t==="zz"&&o.r.length);
+ let h=`<div class="row">${scenSel("zscen")}</div>`;
+ if(!z){h+=`<h3>Зони: ${zs.length}</h3>`+(zs.length?zs.map(q=>{const e=zoneEval(q),miss=e.reqs.filter(r=>r.st==="miss").length;return `<div class="zl" data-z="${q.id}">${ctag(e.col)}<span>${esc(zname(q))}</span><span class="hint" style="margin-left:auto">${e.procs.length} проц.${miss?` · <b style="color:#c0392b">бракує ${miss}</b>`:""}</span></div>`}).join(""):`<div class="pl">Перейдіть на шар «Зони» і тягніть мишкою по плану, щоб намалювати першу зону.</div>`);
+  box.innerHTML=h;box.querySelectorAll("[data-z]").forEach(d=>d.onclick=()=>{if(act!=="zone"){act="zone";presets()}setSel([+d.dataset.z]);draw()});bindScen();return}
+ const e=zoneEval(z),dis=ed?"":" disabled",ztc=(KB.ztm[z.zt]||{}).color;
+ const matChips=(kind,key)=>KB.mat.filter(m=>m.kind===kind||(kind==="floor"&&m.kind==="joint")).filter(m=>m.parent_id).map(m=>`<label class="chip"><input type="checkbox" data-mk="${key}" value="${m.id}"${(z[key]||[]).includes(m.id)?" checked":""}${dis}>${esc(m.name)}</label>`).join("");
+ const cats=[...new Set(KB.zt.map(t=>t.category))];
+ h+=`<div class="row">${ctag(e.col)}<span class="hint">${z.r.length} прямок.</span><button type="button" id="zback" style="margin-left:auto;min-height:30px;font-size:13px">← Усі зони</button></div>
+ <input class="zn" id="znm" placeholder="${esc((KB.ztm[z.zt]||{}).name||"Назва зони")}" value="${esc(z.nm||"")}"${dis}>
+ <div class="row"><label>Тип</label><select id="zzt"${dis}><option value="">— не вибрано —</option>${cats.map(c=>`<optgroup label="${esc(c)}">${KB.zt.filter(t=>t.category===c).map(t=>`<option value="${t.id}"${t.id===z.zt?" selected":""}>${esc(t.name)}</option>`).join("")}</optgroup>`).join("")}</select></div>
+ <div class="row"><label>Колір</label><select id="zco"${dis}><option value="">з типу${ztc?" ("+ZCOL[ztc][0].toLowerCase()+")":""}</option>${Object.entries(ZCOL).map(([k,v])=>`<option value="${k}"${z.co===k?" selected":""}>${v[0]}</option>`).join("")}</select></div>
+ ${z.co?`<div class="row"><label>Причина</label><input id="zwhy" value="${esc(z.why||"")}" placeholder="Чому колір змінено вручну"${dis}></div>`:""}
+ <details class="mats"><summary>Підлога: ${esc((z.fm||[]).map(id=>(KB.matm[id]||{}).name||id).join(", ")||"не задано")}</summary><div class="chips">${matChips("floor","fm")}</div></details>
+ <details class="mats"><summary>Стіни: ${esc((z.wm||[]).map(id=>(KB.matm[id]||{}).name||id).join(", ")||"не задано")}</summary><div class="chips">${matChips("wall","wm")}</div></details>`;
+ const cntm={};e.objs.forEach(o=>{const k=(o.ot||o.l||"без назви").toLowerCase();cntm[k]=(cntm[k]||0)+1});
+ h+=`<details class="sec"><summary><h3>Вміст: ${e.objs.length}</h3></summary>${e.objs.length?`<ul>${Object.entries(cntm).sort().map(([k,v])=>`<li>${esc(k)}${v>1?" × "+v:""}</li>`).join("")}</ul>`:`<div class="pl">Обладнання немає (рахується за центром об’єкта).</div>`}</details>`;
+ const G=[["miss","Бракує на плані"],["prep","Підготувати"],["check","Перевірити на місці"],["train","Інструктаж"],["ok","Є"]];
+ h+=`<h3>Вимоги</h3>`+G.map(([k,n])=>{const it=e.reqs.filter(r=>r.st===k);if(!it.length)return"";return `<div class="rg rg-${k}"><div class="rgh">${n}: ${it.length}</div>${it.map(r=>`<div class="rq">${ctl(r.control_level)}<span>${esc(r.item)}${r.qty>1?` <b>× ${r.qty}</b>`:""}</span>${k==="miss"&&ed&&CATOT[r.object_type_id]?`<button type="button" class="put" data-put="${r.object_type_id}">+ поставити</button>`:""}</div>`).join("")}</div>`}).join("");
+ h+=`<h3>Процедури: ${e.procs.length}</h3>`+KINDS.map(k=>{const it=e.procs.filter(p=>p.kind===k);return it.length?`<div class="rgh">${k}</div>${it.map(procHtml).join("")}`:""}).join("");
+ if(ed)h+=`<div class="row"><button type="button" id="zdelr"${z.r.length<2?" disabled":""}>Прибрати останній прямокутник</button><button type="button" id="zdel">Видалити зону</button></div>`;
+ box.innerHTML=h;bindScen();
  const ch=(id,f)=>{const el=box.querySelector("#"+id);if(el)el.onchange=()=>{push();f(el.value);draw();save()}};
  box.querySelector("#zback").onclick=()=>{setSel([]);draw()};
- ch("znm",v=>z.nm=v.trim());ch("zzt",v=>z.zt=v);ch("zcl",v=>{if(v==="")delete z.cls,delete z.why;else z.cls=+v});ch("zwhy",v=>z.why=v);ch("zfl",v=>z.fl=v);ch("zwl",v=>z.wl=v);
+ ch("znm",v=>z.nm=v.trim());ch("zzt",v=>z.zt=v);ch("zco",v=>{if(v)z.co=v;else{delete z.co;delete z.why}});ch("zwhy",v=>z.why=v);
+ box.querySelectorAll("[data-mk]").forEach(c=>c.onchange=()=>{push();const k=c.dataset.mk,a=new Set(z[k]||[]);c.checked?a.add(c.value):a.delete(c.value);z[k]=[...a];draw();save()});
+ box.querySelectorAll("[data-put]").forEach(b=>b.onclick=()=>{const it=CATOT[b.dataset.put],r0=absR(z)[0];add({t:it[1],ot:it[0],oti:b.dataset.put,l:it[0].toLowerCase(),x:Math.round(r0.x+r0.w/2-it[2]/2),y:Math.round(r0.y+r0.h/2-it[3]/2),w:it[2],h:it[3]});setSel([z.id]);draw()});
  const dr=box.querySelector("#zdelr");if(dr)dr.onclick=()=>{push();const rs=absR(z);rs.pop();setAbs(z,rs);draw();save()};
  const dz=box.querySelector("#zdel");if(dz)dz.onclick=()=>{push();S=S.filter(o=>o!==z);setSel([]);draw();save()};
 }
-function ztMenu(z){const m=$("ztm"),r=cv.getBoundingClientRect(),k=r.width/1260,rs=absR(z)[0];
- m.innerHTML=`<div class="h">Тип зони</div>`+ZT.map(t=>`<button type="button" data-t="${t[0]}"><span class="cls" style="background:${CLS[t[2]][1]}">${CLS[t[2]][0]}</span>${esc(t[1])}</button>`).join("")+`<button type="button" data-t="">Пізніше</button>`;
- m.hidden=false;const x=r.left+(rs.x+rs.w)*k+8,y=r.top+rs.y*k;m.style.left=Math.min(x,innerWidth-240)+"px";m.style.top=Math.max(8,Math.min(y,innerHeight-m.offsetHeight-8))+"px";
+function bindScen(){document.querySelectorAll("select.scen").forEach(el=>el.onchange=()=>{scen=el.value;draw();if(mode==="result")result()})}
+function ztMenu(z){if(!KB.ok)return;const m=$("ztm"),r=cv.getBoundingClientRect(),k=r.width/1260,rs=absR(z)[0],cats=[...new Set(KB.zt.map(t=>t.category))];
+ m.innerHTML=cats.map(c=>`<div class="h">${esc(c)}</div>`+KB.zt.filter(t=>t.category===c).map(t=>`<button type="button" data-t="${t.id}">${ctag(t.color)}${esc(t.name)}</button>`).join("")).join("")+`<button type="button" data-t="">Пізніше</button>`;
+ m.hidden=false;const x=r.left+(rs.x+rs.w)*k+8,y=r.top+rs.y*k;m.style.left=Math.min(x,innerWidth-260)+"px";m.style.top=Math.max(8,Math.min(y,innerHeight-m.offsetHeight-8))+"px";
  m.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{m.hidden=true;if(b.dataset.t){push();z.zt=b.dataset.t;draw();save()}})}
+function result(){const box=$("result"),zs=S.filter(o=>o.t==="zz"&&o.r.length);if(!KB.ok){box.innerHTML=`<p class="hint">Завантажую базу знань…</p>`;return}
+ const ev=zs.map(z=>[z,zoneEval(z)]);const prep={},miss={},chk={};
+ ev.forEach(([z,e])=>e.reqs.forEach(r=>{const key=r.object_type_id||r.item,bag=r.st==="prep"?prep:r.st==="miss"?miss:r.st==="check"?chk:null;if(!bag)return;const nm=r.object_type_id?(KB.otm[r.object_type_id]||{}).name||r.item:r.item;bag[key]=bag[key]||{nm,q:0,z:[]};bag[key].q+=r.st==="prep"?r.qty:1;bag[key].z.push(zname(z))}));
+ const tbl=(o,h)=>{const rows=Object.values(o).sort((a,b)=>a.nm.localeCompare(b.nm,"uk"));return rows.length?`<table><thead><tr><th>${h}</th><th>К-сть</th><th>Зони</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.nm)}</td><td>${r.q}</td><td class="hint">${esc([...new Set(r.z)].join(", "))}</td></tr>`).join("")}</tbody></table>`:`<p class="hint">—</p>`};
+ box.innerHTML=`<div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><h2 style="margin:0;font-size:20px">Результат</h2>${scenSel("rscen")}<button type="button" onclick="print()">Друк</button></div>
+ ${zs.length?"":`<p class="hint">Зон ще немає. Намалюйте їх у вкладці «Зони і рух».</p>`}
+ <h3>Підготувати</h3>${tbl(prep,"Що")}<h3>Бракує на плані</h3>${tbl(miss,"Обладнання")}<h3>Перевірити на місці</h3>${tbl(chk,"Вимога")}
+ <h3>Процедури по зонах</h3>${ev.map(([z,e])=>`<details class="rz" open><summary>${ctag(e.col)} <b>${esc(zname(z))}</b> <span class="hint">${e.procs.length} процедур</span></summary>${KINDS.map(k=>{const it=e.procs.filter(p=>p.kind===k);return it.length?`<div class="rgh">${k}</div>${it.map(procHtml).join("")}`:""}).join("")}</details>`).join("")}
+ <p class="hint">Позначки контролю: ● завжди · ◐ за подією · ○ за графіком.</p>`;bindScen()}
 document.addEventListener("pointerdown",e=>{if(!$("ztm").hidden&&!e.target.closest("#ztm"))$("ztm").hidden=true},true);
 const list=tree;
 $("tq").addEventListener("input",e=>{tq=e.target.value;tree()});
@@ -457,7 +505,7 @@ $("tnodes").addEventListener("dblclick",e=>{
 const setTb=()=>document.documentElement.style.setProperty("--tb",document.querySelector(".top").offsetHeight+"px");addEventListener("resize",setTb);
 function tabs(){
  $("modes").innerHTML=Object.keys(MODES).map(m=>`<button type="button" data-mode="${m}" aria-current="${m===mode}">${MODEN[m]}</button>`).join("");
- $("modes").querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(mode===b.dataset.mode)return;mode=b.dataset.mode;act=MODES[mode][0];show[act]=true;openL.add(act);setSel([]);$("ztm").hidden=true;presets();draw();save()});
+ $("modes").querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(mode===b.dataset.mode)return;mode=b.dataset.mode;if(MODES[mode].length){act=MODES[mode][0];show[act]=true;openL.add(act)}document.body.classList.toggle("m-result",mode==="result");if(mode==="result")result();setSel([]);$("ztm").hidden=true;presets();draw();save()});
  $("tabs").innerHTML=LAYERS.filter(l=>MODES[mode].includes(l[0])).map(([id,n,c])=>{const cnt=S.filter(o=>LY(o)===id).length;return `<span class="tab" style="--tc:${c}" aria-current="${id===act}"><button type="button" data-tab="${id}">${esc(n)} <span class="hint">${cnt}</span></button><input type="checkbox" data-vis="${id}" ${show[id]?"checked":""} aria-label="Показувати шар ${esc(n)}"></span>`}).join("");
  $("tabs").querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{act=b.dataset.tab;show[act]=true;openL.add(act);setSel([]);presets();draw();save()});
  $("tabs").querySelectorAll("[data-vis]").forEach(c=>c.onchange=()=>{show[c.dataset.vis]=c.checked;setSel([...SEL].filter(i=>show[LY(S.find(x=>x.id===i)||{})]));draw();save()});
@@ -513,6 +561,8 @@ for(const f of ["lbl","note"])$(f).addEventListener("focus",()=>push());
 $("lbl").addEventListener("input",e=>{const o=S.find(x=>x.id===sel);if(o){o.l=e.target.value;draw();save()}});
 $("note").addEventListener("input",e=>{const o=S.find(x=>x.id===sel);if(o){o.n=e.target.value;list();save()}});
 $("lbl").addEventListener("keydown",e=>{if(e.key==="Enter")e.target.blur()});
+function fillOti(){$("oti").innerHTML=`<option value="">Тип для правил: не враховується</option>`+KB.ot.filter(t=>!t.is_inventory||CATOT[t.id]).map(t=>`<option value="${t.id}">Тип для правил: ${esc(t.name)}</option>`).join("");panel()}
+$("oti").addEventListener("change",e=>{const o=S.find(x=>x.id===sel);if(o){push();o.oti=e.target.value||null;draw();save()}});
 $("typ").addEventListener("change",e=>{const o=S.find(x=>x.id===sel);if(o){push();o.t=e.target.value;draw();save()}});
 $("knd").addEventListener("change",e=>{const o=S.find(x=>x.id===sel);if(o){push();o.k=e.target.value;draw();save()}});
 $("rot").onclick=()=>{const o=S.find(x=>x.id===sel);if(o&&!isLine(o)){push();const cx=o.x+o.w/2,cy=o.y+o.h/2;[o.w,o.h]=[o.h,o.w];o.x=sn(cx-o.w/2);o.y=sn(cy-o.h/2);draw();save()}};
@@ -542,8 +592,9 @@ const GROUPS={eq:[
 ["Утримання",[["Клітка мала","cage",50,40],["Клітка середня","cage",60,45],["Клітка велика","cage",80,60],["Бокс з підігрівом","cage",60,50],["Бокс з вентиляцією","cage",60,50],["Кисневий бокс","cage",60,50],["Бокс-ізолятор","cage",70,60],["Вольєр","cage",120,100],["Блок кліток","cage",160,60],["Переноска","cage",40,30]]],
 ["Столи",[["Стіл оглядовий","eq",80,45],["Стіл процедурний","eq",80,40],["Стіл операційний","eq",80,45],["Стіл стоматологічний","eq",80,45],["Стіл-ваги","eq",80,45],["Стіл з мийкою","sink",100,40],["Стіл лабораторний","eq",120,50],["Стіл письмовий","eq",100,50]]],
 ["Хірургія та анестезія",[["Наркозний апарат","eq",60,40],["Монітор пацієнта","eq",40,30],["Коагулятор","eq",40,30],["Аспіратор","eq",35,30],["Хірургічний світильник","eq",50,50],["Інфузомат","eq",30,20],["Шприцевий насос","eq",30,20],["Кисневий концентратор","eq",40,40],["Інструментальний столик","eq",60,40],["Стоматологічна установка","eq",60,50]]],
-["Діагностика",[["Рентген","eq",60,90],["Проявочна / дигітайзер","eq",50,40],["УЗД","eq",50,50],["ЕКГ","eq",40,30],["Мікроскоп","eq",30,30],["Гематологічний аналізатор","eq",40,35],["Біохімічний аналізатор","eq",45,40],["Центрифуга","eq",35,35],["Ваги підлогові","eq",80,50],["Офтальмоскоп / отоскоп","eq",30,20]]],
-["Стерилізація та миття",[["Автоклав","eq",50,40],["Сухожарова шафа","eq",50,40],["УЗ-мийка інструментів","eq",40,30],["Мийка","sink",40,35],["Рукомийник","sink",35,30],["Ванна для тварин","sink",100,60],["Точка води","water",20,20],["Дозатор антисептика","water",20,20],["Бактерицидна лампа","eq",60,15]]],
+["Діагностика",[["Рентген","eq",60,90],["Проявочна / дигітайзер","eq",50,40],["УЗД","eq",50,50],["ЕКГ","eq",40,30],["Мікроскоп","eq",30,30],["Гематологічний аналізатор","eq",40,35],["Біохімічний аналізатор","eq",45,40],["Центрифуга","eq",35,35],["Ваги підлогові","eq",80,50],["Офтальмоскоп / отоскоп","eq",30,20],["Ламінар / бокс біобезпеки","eq",70,40,"bsc"]]],
+["Стерилізація та миття",[["Автоклав","eq",50,40],["Сухожарова шафа","eq",50,40],["УЗ-мийка інструментів","eq",40,30],["Мийка","sink",40,35],["Рукомийник","sink",35,30],["Ванна для тварин","sink",100,60],["Точка води","water",20,20],["Бактерицидна лампа","eq",60,15]]],
+["Інфекційний контроль",[["Дозатор антисептика","water",22,22,"hand_disp"],["Дезкилимок","door",50,30,"dez_mat"],["Станція ЗІЗ","eq",50,30,"ppe_station"],["Бак «використані ЗІЗ»","door",35,35,"ppe_bin"],["Контейнер для гострих","door",25,25,"sharps"],["Контейнер для відходів","door",35,35,"waste_bin"],["Місце приготування розчинів","eq",60,40,"mix_station"],["Баки для чистої і брудної білизни","door",60,35,"linen_bins"],["Набір для розливу біоматеріалу","eq",35,30,"spill_kit"],["Пилосос з HEPA-фільтром","eq",35,35,"hepa_vac"]]],
 ["Зберігання",[["Стелаж","eq",80,30],["Шафа","eq",80,40],["Скляна шафа","eq",80,40],["Аптечна шафа","eq",80,40],["Аптечні полиці","eq",100,25],["Сейф для препаратів","eq",40,40],["Холодильник","eq",50,50],["Холодильник для вакцин","eq",50,50],["Морозильник","eq",60,50],["Візок медичний","eq",50,35],["Шафа для ЗІЗ","eq",60,40]]],
 ["Пральня і відходи",[["Пральна машина","eq",50,50],["Сушильна машина","eq",50,50],["Кошик брудної білизни","door",40,40],["Контейнер медвідходів","door",35,35],["Контейнер для гострих","door",25,25],["Бак загальних відходів","door",40,40],["Інвентар для прибирання","eq",50,40]]],
 ["Рецепція та офіс",[["Стійка рецепції","eq",160,50],["Диван очікування","eq",120,45],["Стілець","eq",30,30],["Комп'ютер","eq",40,30],["Принтер","eq",35,30],["Ваги на рецепції","eq",60,45]]],
@@ -554,6 +605,7 @@ const GROUPS={eq:[
  risk:[["Зони",["z_hi","z_mid","z_lo"]],["Знаки",["r_bio","r_blood","r_aer","r_hair","r_touch","r_wet","r_cross","r_sharp"]]],
  store:[["Точки зберігання",["s_dez","s_inv","s_ster","s_inst","s_lc","s_ld","s_wm","s_wg","s_med","s_cold","s_feed","s_ppe"]]],
  vis:[["Що повісити",["v_dez","v_dil","v_hand","v_chk","v_ppe","v_zone","v_flow","v_sched","v_lab"]]]};
+const CATOT={};GROUPS.eq.forEach(([,items])=>items.forEach(it=>{const k=it[4]||LBL2OT[it[0].toLowerCase()];if(k&&!CATOT[k])CATOT[k]=it}));
 const SW={room:"var(--room)",part:"transparent",eq:"var(--eq)",cage:"var(--teal)",sink:"var(--blue)",water:"var(--blue)",door:"var(--amb)",note:"transparent"};
 let lastPos=null;
 function visRect(){const r=cv.getBoundingClientRect(),w=$("wrap").getBoundingClientRect(),tb=document.querySelector(".top").getBoundingClientRect().bottom,k=1260/r.width;
@@ -578,7 +630,7 @@ function presets(){
   tb.onclick=e=>{e.stopPropagation();const was=!m.hidden;document.querySelectorAll(".menu").forEach(x=>x.hidden=true);document.querySelectorAll(".ddb").forEach(x=>x.classList.remove("open"));if(!was){m.hidden=false;tb.classList.add("open")}};
   items.forEach(it=>{const b=document.createElement("button");b.type="button";
    if(act==="eq"){const [lab,t,w,h]=it;b.innerHTML='<span class="sw" style="background:'+SW[t]+(t==="water"?';border-radius:50%':'')+'"></span>'+esc(lab);
-    b.onclick=()=>{const q=spawnPos(w,h);add({t,ot:lab,l:(lab==="Двері"||t==="water"&&lab==="Точка води")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h})}}
+    b.onclick=()=>{const q=spawnPos(w,h);add({t,ot:lab,oti:it[4]||LBL2OT[lab.toLowerCase()]||null,l:(lab==="Двері"||t==="water"&&lab==="Точка води")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h})}}
    else{const k=K[it],sh=k[1];
     b.innerHTML=(sh==="seg"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="2" y1="6" x2="24" y2="6" stroke="${k[4]}" stroke-width="${Math.min(6,k[6])}" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/></svg>`:sh==="arrow"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="1" y1="6" x2="17" y2="6" stroke="${k[4]}" stroke-width="3" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/><polygon points="25,6 16,1 16,11" fill="${k[4]}"/></svg>`:sh==="zone"?`<span class="sw" style="background:${k[4]}33;border:2px dashed ${k[4]}"></span>`:`<span class="ic" style="background:${sh==="tri"?"#ffd34d":sh==="doc"?"transparent":k[4]};color:${sh==="tri"?"#1d2326":sh==="doc"?k[4]:"#fff"};${sh==="doc"?`border:1.5px solid ${k[4]}`:""}${sh==="pt"?";border-radius:10px":""}">${esc(k[3])}</span>`)+esc(k[2]);
     b.onclick=()=>{
@@ -621,7 +673,20 @@ presets();draw();
 /* ---- база даних ---- */
 const ENV=window.PLAN_ENV||{name:"prod",table:"plan_prod"},SB_URL="https://yyqlldeadajhhcwvjocj.supabase.co",SB_KEY="sb_publishable_Wz4vFrtTpOTF7APubvBolg_8dqdvR-f";
 const sb=supabase.createClient(SB_URL,SB_KEY);
-const docJ=()=>JSON.stringify({items:S,bg:bg.src?bg:null});let migr=false,last="",ver=null,dirty=false,timer=null,saving=false,conflict=false;
+const docJ=()=>JSON.stringify({items:S,bg:bg.src?bg:null});async function loadKB(){try{const q=t=>sb.from(t).select("*");const [zt,ot,mat,req,proc,st,sc,rl,cl]=await Promise.all(["zone_type","object_type","material","zone_requirement","procedure_std","procedure_step","scenario","staff_role","substance_class"].map(t=>q(t)));
+  KB.zt=(zt.data||[]).sort((a,b)=>a.sort-b.sort);KB.ztm=Object.fromEntries(KB.zt.map(x=>[x.id,x]));KB.ot=ot.data||[];KB.otm=Object.fromEntries(KB.ot.map(x=>[x.id,x]));KB.mat=mat.data||[];KB.matm=Object.fromEntries(KB.mat.map(x=>[x.id,x]));
+  KB.req=req.data||[];KB.proc=(proc.data||[]).sort((a,b)=>a.code.localeCompare(b.code));KB.steps={};(st.data||[]).sort((a,b)=>a.step_no-b.step_no).forEach(x=>(KB.steps[x.procedure_id]=KB.steps[x.procedure_id]||[]).push(x));
+  KB.sc=sc.data||[];KB.role=Object.fromEntries((rl.data||[]).map(x=>[x.id,x.name]));KB.cls=Object.fromEntries((cl.data||[]).map(x=>[x.id,x]));KB.ok=true;fillOti();draw();if(mode==="result")result()}catch(e){console.error(e)}}
+const CLINIC="zvirpolis_1";let syncT=null;
+async function syncDB(){if(!window.__canEdit)return;const env=ENV.name==="prod"?"prod":"preprod";
+ const zs=S.filter(o=>o.t==="zz"&&o.r.length&&o.uid);
+ const rows=zs.map(z=>({id:z.uid,clinic_id:CLINIC,env,name:zname(z),zone_type_id:z.zt||null,rects:absR(z),floor_material_ids:z.fm||[],wall_material_ids:z.wm||[],color_override:z.co||null,override_reason:z.co?(z.why||null):null}));
+ try{if(rows.length){const r=await sb.from("zone").upsert(rows);if(r.error)throw r.error}
+  let d=sb.from("zone").delete().eq("env",env).eq("clinic_id",CLINIC);if(rows.length)d=d.not("id","in",`(${rows.map(r=>r.id).join(",")})`);const r2=await d;if(r2.error)throw r2.error;
+  await sb.from("site_object").delete().eq("env",env).eq("clinic_id",CLINIC);
+  const so=S.filter(o=>LY(o)==="eq"&&o.uid&&otiOf(o)).map(o=>{const z=zs.find(q=>inZ(o,q));return {clinic_id:CLINIC,env,item_uid:o.uid,object_type_id:otiOf(o),zone_id:z?z.uid:null}});
+  if(so.length){const r3=await sb.from("site_object").insert(so);if(r3.error)throw r3.error}}catch(e){console.warn("sync",e);st("Зони не синхронізовано з базою: "+(e.message||e),true)}}
+let migr=false,last="",ver=null,dirty=false,timer=null,saving=false,conflict=false;
 window.__canEdit=false;
 const st=(t,err)=>{$("save").textContent=t;$("save").classList.toggle("err",!!err)};
 if(ENV.name!=="prod"){$("envb").innerHTML=`<span class="badge">ПРЕПРОД — тестові дані</span>`;$("copyprod").hidden=false}
@@ -633,7 +698,7 @@ async function flush(){if(!dirty||saving||conflict||!window.__canEdit)return;sav
  saving=false;
  if(error){dirty=true;st("Помилка збереження: "+error.message,true);return}
  if(!data.length){conflict=true;st("План щойно змінив хтось інший. Ваші останні зміни не збережено — натисніть «Перезавантажити».",true);$("save").insertAdjacentHTML("beforeend",' <button id="rl">Перезавантажити</button>');$("rl").onclick=load;return}
- ver=data[0].version;last=j;st("Збережено "+new Date(data[0].updated_at).toLocaleTimeString("uk-UA"));if(dirty)flush()}
+ ver=data[0].version;last=j;clearTimeout(syncT);syncT=setTimeout(syncDB,500);st("Збережено "+new Date(data[0].updated_at).toLocaleTimeString("uk-UA"));if(dirty)flush()}
 window.__dbSave=()=>{if(!window.__canEdit||docJ()===last)return;dirty=true;st("Є незбережені зміни…");clearTimeout(timer);timer=setTimeout(flush,1000)};
 addEventListener("beforeunload",e=>{if(dirty){flush();e.preventDefault()}});
 async function auth(){const {data:{session}}=await sb.auth.getSession();const email=session?.user?.email;
@@ -650,7 +715,7 @@ $("copyprod").onclick=async()=>{if(!confirm("Замінити дані преп�
  const d=data.doc||{};S=d.items||[];bg=d.bg&&d.bg.src?d.bg:{src:"",w:960,h:1280};draw();save()};
 sb.auth.onAuthStateChange(()=>setTimeout(auth,0));
 document.body.classList.add("ro");
-load().then(auth);
+load().then(auth);loadKB();
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!dirty&&!saving)load()});
 }
 </script>
