@@ -44,7 +44,12 @@ table{border-collapse:collapse;width:100%;font-size:14px}
 td,th{text-align:left;padding:6px 8px;border-top:1px solid var(--grid);vertical-align:top}
 th{font-weight:500;color:var(--mute);font-size:13px;border-top:0}
 tr[data-id]{cursor:pointer}tr[data-id]:hover td{background:var(--bg)}tr.on td{background:light-dark(#fdeee7,#3a2418)}
-details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13px/1.4 ui-monospace,monospace;background:var(--paper);border:1px solid var(--grid);border-radius:8px;padding:8px}
+details.grp{margin:8px 0;border:1px solid var(--grid);border-radius:8px;padding:4px 8px}
+details.grp summary{display:flex;align-items:center;gap:8px;cursor:pointer;flex-wrap:wrap}
+.gname{font:inherit;font-weight:600;border:1px solid transparent;background:none;border-radius:6px;padding:2px 6px;min-width:120px;color:var(--ink)}.gname:hover,.gname:focus{border-color:var(--line);background:var(--bg)}
+.gsel{min-height:30px;font-size:13px;margin-left:auto}.gsel.on{border-color:var(--sel)}
+details.grp table{margin-top:4px}
+body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13px/1.4 ui-monospace,monospace;background:var(--paper);border:1px solid var(--grid);border-radius:8px;padding:8px}
 .ro .edit{display:none!important}
 .status{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 max(3vw,12px) 6px;font-size:13px;color:var(--mute)}
 .badge{font-weight:600;font-size:12px;padding:2px 8px;border-radius:6px;background:#c0392b;color:#fff}
@@ -254,14 +259,31 @@ function panel(){
  $("knd").innerHTML=opts.map(([kk,v])=>`<option value="${kk}">${v[3]?v[3]+" — ":""}${v[2]}</option>`).join("");$("knd").value=o.k;
  if(document.activeElement!==$("note"))$("note").value=o.n||"";
 }
+const TYPN={room:"кімната",part:"перегородка",eq:"обладнання",cage:"утримання",sink:"вода",water:"вода",door:"двері / відходи",note:"напис",stair:"сходи"};
+let closedG=new Set();
+function rowHtml(o){const on=SEL.has(o.id)?"on":"";
+ if(LY(o)==="eq")return `<tr data-id="${o.id}" class="${on}"><td>${esc(o.l||"без назви")}</td><td class="hint">${esc(TYPN[o.t]||o.t)}</td><td></td></tr>`;
+ const k=K[o.k]||[];return `<tr data-id="${o.id}" class="${on}"><td>${k[3]?`<span class="ic" style="background:${k[4]}">${esc(k[3])}</span>`:`<span class="sw" style="background:${k[4]};border-color:${k[4]}"></span>`}${esc(k[2])}</td><td>${esc(o.l)}</td><td>${esc(o.n)}</td></tr>`}
 function list(){
- const box=$("list");
- if(act==="eq"){const c={};S.filter(o=>LY(o)==="eq").forEach(o=>{const n=(o.l||"").toLowerCase()||"без назви";c[n]=(c[n]||0)+1});
-  box.innerHTML=`<h2>Обладнання на плані: ${S.filter(o=>LY(o)==="eq").length}</h2><p class="hint" style="margin:0">${Object.entries(c).sort().map(([n,v])=>esc(n)+(v>1?" × "+v:"")).join(" · ")||"—"}</p>`;return}
- const rows=S.filter(o=>LY(o)===act).sort((a,b)=>Object.keys(K).indexOf(a.k)-Object.keys(K).indexOf(b.k));
- const name=LAYERS.find(l=>l[0]===act)[1];
- box.innerHTML=`<h2>${esc(name)}: ${rows.length}</h2>`+(rows.length?`<table><thead><tr><th>Позначка</th><th>Підпис</th><th>Нотатка</th></tr></thead><tbody>${rows.map(o=>{const k=K[o.k]||[];return `<tr data-id="${o.id}" class="${o.id===sel?"on":""}"><td>${k[3]?`<span class="ic" style="background:${k[4]}">${esc(k[3])}</span>`:`<span class="sw" style="background:${k[4]};border-color:${k[4]}"></span>`}${esc(k[2])}</td><td>${esc(o.l)}</td><td>${esc(o.n)}</td></tr>`}).join("")}</tbody></table>`:`<p class="hint" style="margin:0">Поки порожньо. Додайте позначки кнопками вгорі.</p>`);
- box.querySelectorAll("tr[data-id]").forEach(tr=>tr.onclick=()=>{setSel(grpOf(+tr.dataset.id));draw();cv.querySelector(`[data-id="${sel}"]`)?.scrollIntoView({block:"center",inline:"center",behavior:"smooth"})});
+ const box=$("list"),isEq=act==="eq";
+ const rows=S.filter(o=>LY(o)===act).sort((a,b)=>isEq?(a.l||"").localeCompare(b.l||"","uk"):Object.keys(K).indexOf(a.k)-Object.keys(K).indexOf(b.k));
+ const name=isEq?"Обладнання на плані":LAYERS.find(l=>l[0]===act)[1];
+ const head=isEq?`<th>Назва</th><th>Тип</th><th></th>`:`<th>Позначка</th><th>Підпис</th><th>Нотатка</th>`;
+ const gids=[...new Set(rows.filter(o=>o.gid).map(o=>o.gid))];
+ const allG=[...new Set(S.filter(o=>o.gid).map(o=>o.gid))];
+ const gname=g=>(S.find(o=>o.gid===g&&o.gn)||{}).gn||("Група "+(allG.indexOf(g)+1));
+ let h=`<h2>${esc(name)}: ${rows.length}</h2>`;
+ if(!rows.length){box.innerHTML=h+`<p class="hint" style="margin:0">Поки порожньо. Додайте елементи кнопками вгорі.</p>`;return}
+ for(const g of gids){const mem=rows.filter(o=>o.gid===g),allm=S.filter(o=>o.gid===g),on=allm.every(o=>SEL.has(o.id));
+  h+=`<details class="grp" data-g="${g}" ${closedG.has(String(g))?"":"open"}><summary><span class="fold">📁</span><input class="gname" data-g="${g}" value="${esc(gname(g))}" aria-label="Назва групи"><span class="hint">${mem.length}${allm.length>mem.length?` на цьому шарі, усього ${allm.length}`:""}</span><button type="button" class="gsel${on?" on":""}" data-g="${g}">Виділити групу</button></summary><table><tbody>${mem.map(rowHtml).join("")}</tbody></table></details>`}
+ const free=rows.filter(o=>!o.gid);
+ if(free.length)h+=`<table><thead><tr>${head}</tr></thead><tbody>${free.map(rowHtml).join("")}</tbody></table>`;
+ box.innerHTML=h;
+ box.querySelectorAll("tr[data-id]").forEach(tr=>tr.onclick=e=>{const id=+tr.dataset.id;if(e.shiftKey){const n=new Set(SEL);SEL.has(id)?n.delete(id):n.add(id);setSel(n)}else setSel([id]);draw();cv.querySelector(`[data-id="${id}"]`)?.scrollIntoView({block:"center",inline:"center",behavior:"smooth"})});
+ box.querySelectorAll(".gsel").forEach(b=>b.onclick=e=>{e.preventDefault();const g=b.dataset.g;setSel(S.filter(o=>String(o.gid)===g).map(o=>o.id));draw()});
+ box.querySelectorAll("details.grp").forEach(d=>d.ontoggle=()=>{d.open?closedG.delete(d.dataset.g):closedG.add(d.dataset.g)});
+ box.querySelectorAll(".gname").forEach(inp=>{inp.onclick=e=>e.preventDefault();inp.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter")inp.blur()};inp.onkeyup=e=>e.preventDefault();
+  inp.onfocus=()=>push();inp.onchange=()=>{const g=inp.dataset.g;S.filter(o=>String(o.gid)===g).forEach(o=>o.gn=inp.value.trim());draw();save()}});
 }
 function tabs(){
  $("tabs").innerHTML=LAYERS.map(([id,n,c])=>{const cnt=S.filter(o=>LY(o)===id).length;return `<span class="tab" style="--tc:${c}" aria-current="${id===act}"><button type="button" data-tab="${id}">${esc(n)} <span class="hint">${cnt}</span></button><input type="checkbox" data-vis="${id}" ${show[id]?"checked":""} aria-label="Показувати шар ${esc(n)}"></span>`}).join("");
@@ -316,7 +338,7 @@ $("mdel").onclick=$("del").onclick;
 $("mdup").onclick=()=>{if(!SEL.size)return;push();let id=nid();const gm={},ns=selObjs().map(o=>{const n={...o,id:id++,x:o.x+20,y:o.y+20};if(isLine(o)){n.x2=o.x2+20;n.y2=o.y2+20}if(o.gid)n.gid=gm[o.gid]||(gm[o.gid]=Date.now()+Math.random());return n});S.push(...ns);setSel(ns.map(n=>n.id));draw();save()};
 $("dup").onclick=$("mdup").onclick;
 $("grp").onclick=()=>{if(SEL.size<2)return;push();const gid=Date.now();selObjs().forEach(o=>o.gid=gid);draw();save()};
-$("ungrp").onclick=()=>{push();selObjs().forEach(o=>delete o.gid);draw();save()};
+$("ungrp").onclick=()=>{push();selObjs().forEach(o=>{delete o.gid;delete o.gn});draw();save()};
 $("sla").onclick=()=>{show[act]=true;setSel(S.filter(o=>LY(o)===act).map(o=>o.id));draw()};
 $("saa").onclick=()=>{setSel(S.filter(o=>show[LY(o)]).map(o=>o.id));draw()};
 document.addEventListener("keydown",e=>{
