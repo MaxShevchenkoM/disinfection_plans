@@ -69,6 +69,10 @@ details.mats summary,details.sec summary{cursor:pointer;font-size:13px}details.s
 .menu[hidden]{display:none}
 .menu button{border:0;text-align:left;min-height:34px;border-radius:6px;white-space:nowrap}
 .menu button:hover{background:var(--bg)}
+.menu.wide{display:block;columns:3 230px;column-gap:8px;width:min(760px,90vw);max-height:70vh;padding:8px}
+.menu.wide[hidden]{display:none}
+.menu.wide .mh{font-size:12px;font-weight:600;color:var(--mute);padding:8px 8px 2px;break-after:avoid}
+.menu.wide button{display:flex;align-items:center;width:100%;break-inside:avoid}
 .mat{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;align-items:stretch}
 .mat button{border:0;border-radius:0;min-height:38px;padding:0 10px;border-right:1px solid var(--line)}.mat button:last-child{border-right:0}
 .mat button.on{background:var(--ink);color:var(--paper)}
@@ -692,11 +696,13 @@ function add(n){push();n.id=nid();n.uid=uidv();S.push(n);remember(n);setSel([n.i
 function presets(){
  const pz=$("presets");pz.innerHTML="";
  if(act==="zone"){pz.innerHTML='<span class="gl">Тягніть по порожньому місцю плану — нова зона. Shift+тягнути — додати прямокутник до виділеної зони. Червоний квадрат у куті — розмір прямокутника.</span>';return}
+ const wide=GROUPS[act].length>3;let W=null;
+ const mk=(label,cls)=>{const dd=document.createElement("span");dd.className="dd";const tb=document.createElement("button");tb.type="button";tb.className="ddb";tb.innerHTML=label;const m=document.createElement("div");m.className="menu"+(cls||"");m.hidden=true;
+  tb.onclick=e=>{e.stopPropagation();const was=!m.hidden;document.querySelectorAll(".menu").forEach(x=>x.hidden=true);document.querySelectorAll(".ddb").forEach(x=>x.classList.remove("open"));if(!was){m.hidden=false;tb.classList.add("open")}};dd.append(tb,m);return {dd,tb,m}};
+ if(wide){W=mk('<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" style="color:var(--acc)"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg> Каталог ▾'," wide");pz.appendChild(W.dd)}
  GROUPS[act].forEach(([gname,items])=>{
-  const dd=document.createElement("span");dd.className="dd";
-  const tb=document.createElement("button");tb.type="button";tb.className="ddb";tb.innerHTML=esc(gname)+' <span class="hint">'+items.length+'</span> ▾';
-  const m=document.createElement("div");m.className="menu";m.hidden=true;
-  tb.onclick=e=>{e.stopPropagation();const was=!m.hidden;document.querySelectorAll(".menu").forEach(x=>x.hidden=true);document.querySelectorAll(".ddb").forEach(x=>x.classList.remove("open"));if(!was){m.hidden=false;tb.classList.add("open")}};
+  let dd,tb,m;if(wide){({dd,tb,m}=W);const hh=document.createElement("div");hh.className="mh";hh.textContent=gname;m.appendChild(hh)}else{({dd,tb,m}=mk(esc(gname)+' <span class="hint">'+items.length+'</span> ▾'))}
+  if(0)tb.onclick=e=>{e.stopPropagation();const was=!m.hidden;document.querySelectorAll(".menu").forEach(x=>x.hidden=true);document.querySelectorAll(".ddb").forEach(x=>x.classList.remove("open"));if(!was){m.hidden=false;tb.classList.add("open")}};
   items.forEach(it=>{const b=document.createElement("button");b.type="button";
    if(act==="eq"){const [lab,t,w,h]=it;b.innerHTML='<span class="sw" style="background:'+SW[t]+(t==="water"?';border-radius:50%':'')+'"></span>'+esc(lab);
     b.onclick=()=>{const q=spawnPos(w,h);add({t,ot:lab,oti:it[4]||LBL2OT[lab.toLowerCase()]||null,l:(lab==="Двері"||t==="water"&&lab==="Точка води")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h})}}
@@ -709,7 +715,7 @@ function presets(){
      else{const q=spawnPos(34,34);add({ly:act,t:"mk",k:it,l:"",n:"",x:q.x,y:q.y,w:34,h:34})}}}
    const bb=b.onclick;b.onclick=e=>{e.stopPropagation();bb();m.hidden=true;tb.classList.remove("open")};
    m.appendChild(b)});
-  dd.append(tb,m);pz.appendChild(dd)});
+  if(!wide)pz.appendChild(dd)});
 }
 document.addEventListener("click",e=>{if(!e.target.closest(".dd")){document.querySelectorAll(".menu").forEach(x=>x.hidden=true);document.querySelectorAll(".ddb").forEach(x=>x.classList.remove("open"))}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".menu").forEach(x=>x.hidden=true)},true);
