@@ -29,6 +29,26 @@ button:hover{border-color:var(--wall)}button:focus-visible,input:focus-visible,s
 .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1px solid var(--wall)}
 .ic{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 3px;margin-right:6px;font-size:11px;font-weight:600;color:#fff;border-radius:4px;vertical-align:1px}
 .gl{align-self:center;font-size:13px;color:var(--mute);margin-left:6px}
+.modes{display:flex;gap:4px;padding:10px max(3vw,12px) 0}
+.modes button{min-height:38px;font-weight:600;border-radius:8px 8px 0 0;border-bottom-width:3px}
+.modes button[aria-current=true]{border-color:var(--ink);border-bottom-color:var(--sel);background:var(--paper)}
+#pass[hidden]{display:none}
+#pass{overflow:auto;padding:12px;display:flex;flex-direction:column;gap:12px}
+#pass h3{margin:0;font-size:13px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+#pass .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#pass label{font-size:13px;color:var(--mute);min-width:70px}
+#pass select,#pass input{flex:1;min-height:34px;font-size:14px;padding:0 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+#pass .zn{font-size:18px;font-weight:600}
+#pass ul{margin:0;padding-left:18px;font-size:14px}
+#pass .pl{font-size:13px;color:var(--mute);border:1px dashed var(--line);border-radius:8px;padding:8px}
+#pass .zl{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;border:1px solid var(--grid)}
+#pass .zl:hover{background:var(--bg)}
+.cls{font-size:11px;font-weight:600;color:#fff;border-radius:10px;padding:1px 8px}
+.ztm{position:fixed;z-index:40;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:4px;display:flex;flex-direction:column;max-height:60vh;overflow:auto;min-width:220px}
+.ztm[hidden]{display:none}
+.ztm .h{font-size:12px;color:var(--mute);padding:4px 8px}
+.ztm button{border:0;text-align:left;min-height:32px;border-radius:6px;display:flex;gap:8px;align-items:center}
+.ztm button:hover{background:var(--bg)}
 .dd{position:relative;display:inline-flex}
 .ddb.open{border-color:var(--ink);background:var(--bg)}
 .menu{position:absolute;top:calc(100% + 4px);left:0;z-index:30;min-width:240px;max-height:60vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:4px;display:flex;flex-direction:column}
@@ -92,6 +112,7 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 <header><h1>План клініки</h1><span id="envb"></span><span class="hint">Оберіть шар угорі: редагуються лише елементи активного шару, решта видно блідо. Галочка ховає шар. Новий елемент з’являється поруч із тим, що ви створили чи пересунули останнім; якщо те місце не видно на екрані — посередині видимої частини плану. Shift+клік додає об’єкт до виділення, Shift+рамка по порожньому місцю виділяє кілька. Стіни й стрілки тягніть за кінці: стіна сама вирівнюється по горизонталі чи вертикалі й чіпляється до кінців інших стін.</span></header>
 <div class="status"><span id="who">Перегляд</span><button id="login">Увійти для редагування</button><button id="logout" hidden>Вийти</button><span id="save"></span><button id="copyprod" class="edit" hidden>Скопіювати дані з проду в препрод</button></div>
 <div class="top">
+<div class="modes" id="modes"></div>
 <div class="tabs" id="tabs"></div>
 <div class="bar edit" id="bar">
 <span id="presets" style="display:contents"></span>
@@ -116,7 +137,8 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 <textarea id="note" placeholder="Нотатка: що тут відбувається, що зробити, текст інструкції" disabled hidden></textarea>
 </div>
 </div>
-<aside class="tree" aria-label="Об’єкти плану"><div class="ts"><input id="tq" type="search" placeholder="Пошук за назвою"></div><div id="tnodes"></div></aside>
+<aside class="tree" aria-label="Об’єкти плану"><div class="ts"><input id="tq" type="search" placeholder="Пошук за назвою"></div><div id="tnodes"></div><div id="pass" hidden></div></aside>
+<div id="ztm" class="ztm" hidden></div>
 </div>
 <details class="edit"><summary>Зберегти / відкрити план</summary>
 <p class="hint">Файл зберігає всі шари і ваше фото плану, якщо ви його завантажували; його можна відкрити на іншому комп’ютері. Текст нижче — те саме без фото, щоб надіслати мені. Зміни зберігаються в базу автоматично.</p>
@@ -129,7 +151,7 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 const D=[];
 const fresh=()=>D.map((d,i)=>({id:i+1,t:d[0],l:d[1],x:d[2],y:d[3],w:d[4],h:d[5]}));
 const VKEY="zvir-plan-ui-v1",ORDER={room:0,sink:1,part:2,note:3,eq:4,stair:4,cage:4,water:5,door:6};
-const LAYERS=[["wall","Стіни та проходи","#2b3336"],["eq","Обладнання","#68716f"],["flow","Рух","#0f6e56"],["risk","Ризики забруднення","#c0392b"],["store","Зберігання","#6a4fb3"],["vis","Матеріали та інструкції","#b7791f"]];
+const LAYERS=[["zone","Зони","#7d3c98"],["wall","Стіни та проходи","#2b3336"],["eq","Обладнання","#68716f"],["flow","Рух","#0f6e56"],["risk","Ризики забруднення","#c0392b"],["store","Зберігання","#6a4fb3"],["vis","Матеріали та інструкції","#b7791f"]];
 const LCOL=Object.fromEntries(LAYERS.map(l=>[l[0],l[2]]));
 const K={
  w_wall:["wall","seg","Капітальна стіна","",'#2b3336',"",9],
@@ -192,6 +214,28 @@ S=fresh();
 try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.show)show={...show,...v.show};if(v&&v.act)act=v.act}catch(e){}
 const cv=document.getElementById("cv"),$=id=>document.getElementById(id);
 const LY=o=>o.ly||"eq";
+const MODES={rooms:["wall","eq"],zones:["zone","flow","risk"]},MODEN={rooms:"Приміщення",zones:"Зони і рух"};
+let mode="rooms";
+const CLS=[["Низький","#1e8449"],["Середній","#2e86c1"],["Високий","#d68910"],["Критичний","#c0392b"]];
+/* чернетка типів зон — замінимо довідником з бази */
+const ZT=[["asept","Асептична",3],["prep","Підготовка до втручання",2],["hold","Утримання тварин",2],["manip","Маніпуляційна",2],["dirtywet","Брудна мокра",2],["cleanprep","Чиста підготовка",1],["dirtystore","Брудне зберігання",2],["util","Господарська",1],["staff","Робоче місце персоналу",0],["client","Контакт із клієнтом",1],["transit","Транзит",1]];
+const ZTM=Object.fromEntries(ZT.map(z=>[z[0],z]));
+const FLOORS=["Плитка керамічна","Керамограніт","Лінолеум","ПВХ-покриття","Полімерна (епоксидна) підлога","Ламінат","Бетон","Дерево"];
+const WALLS=["Фарба миюча","Фарба звичайна","Кахель","ПВХ-панелі","Пластикові панелі","Шпалери","Гіпсокартон фарбований"];
+const zcls=z=>z.cls!=null&&z.cls!==""?+z.cls:(ZTM[z.zt]?ZTM[z.zt][2]:null);
+const absR=z=>(z.r||[]).map(a=>({x:z.x+a[0],y:z.y+a[1],w:a[2],h:a[3]}));
+function setAbs(z,rs){z.r=[];if(!rs.length){return}const mx=Math.min(...rs.map(r=>r.x)),my=Math.min(...rs.map(r=>r.y));z.x=mx;z.y=my;z.r=rs.map(r=>[r.x-mx,r.y-my,r.w,r.h]);z.w=Math.max(...rs.map(r=>r.x+r.w))-mx;z.h=Math.max(...rs.map(r=>r.y+r.h))-my}
+function clipR(r,R2){if(r.x>=R2.x+R2.w||r.x+r.w<=R2.x||r.y>=R2.y+R2.h||r.y+r.h<=R2.y)return r;
+ const c=[[r.x+r.w-R2.x,"L"],[R2.x+R2.w-r.x,"R"],[r.y+r.h-R2.y,"T"],[R2.y+R2.h-r.y,"B"]].sort((a,b)=>a[0]-b[0])[0][1];
+ const n={...r};if(c==="L")n.w=R2.x-r.x;if(c==="R"){n.x=R2.x+R2.w;n.w=r.x+r.w-n.x}if(c==="T")n.h=R2.y-r.y;if(c==="B"){n.y=R2.y+R2.h;n.h=r.y+r.h-n.y}
+ return n.w<10||n.h<10?null:n}
+function zClip(moved,snapZ){const ids=new Set(moved.map(z=>z.id)),M=moved.flatMap(absR);
+ for(const q of S.filter(o=>o.t==="zz"&&!ids.has(o.id))){
+  if(snapZ){const sz=snapZ[q.id];if(sz){q.x=sz.x;q.y=sz.y;q.r=sz.r.map(a=>[...a])}}
+  let rs=absR(q);for(const R2 of M)rs=rs.map(r=>r&&clipR(r,R2)).filter(Boolean);setAbs(q,rs)}}
+const zSnap=moved=>{const ids=new Set(moved.map(z=>z.id)),o={};S.filter(q=>q.t==="zz"&&!ids.has(q.id)).forEach(q=>o[q.id]={x:q.x,y:q.y,r:q.r.map(a=>[...a])});return o};
+const zClean=()=>{S=S.filter(o=>!(o.t==="zz"&&!(o.r||[]).length))};
+const uidv=()=>(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));
 const MATS=[["metal","Метал","М","#6b7a89"],["wood","Дерево","Д","#9a5b2e"],["plastic","Пластик","П","#2e86c1"],["glass","Скло","С","#17a589"]];
 const MAT=Object.fromEntries(MATS.map(m=>[m[0],m]));
 const hasMat=o=>LY(o)==="eq"&&!["note","water","room","part","stair"].includes(o.t);
@@ -261,38 +305,43 @@ function drawSeg(o){
  if(o.l)g+=halo((o.x+o.x2)/2,(o.y+o.y2)/2-10,o.l,13,"middle",c);
  return g}
 const isLine=o=>o.t==="arrow"||o.t==="seg";
+function drawZZ(o){const c=zcls(o),col=c!=null?CLS[c][1]:"#7d3c98",rs=absR(o);if(!rs.length)return"";
+ let g=rs.map(r=>`<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="${col}" fill-opacity=".13" stroke="${col}" stroke-width="2" stroke-dasharray="9 5"/>`).join("");
+ const t=o.nm||(ZTM[o.zt]?ZTM[o.zt][1]:"Зона без типу");g+=halo(rs[0].x+8,rs[0].y+20,t,14,"start",col);return g}
 function bbox(o){if(isLine(o))return{x:Math.min(o.x,o.x2),y:Math.min(o.y,o.y2),w:Math.abs(o.x2-o.x),h:Math.abs(o.y2-o.y)};return o}
 function draw(){
  let g=`<defs><pattern id="gr" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern></defs>${bg.src?`<image href="${bg.src}" x="${bg.x||0}" y="${bg.y||0}" width="${bg.w}" height="${bg.h}" preserveAspectRatio="none" opacity="${bgOp}" pointer-events="none"/>`:""}<rect width="1260" height="1280" fill="url(#gr)" pointer-events="none"/>`;
- const rank=o=>{const l=LY(o);if(l==="wall")return -1;if(l==="eq")return 0;if(o.t==="zone")return 1;if(o.t==="arrow")return 2;return 3};
+ const rank=o=>{const l=LY(o);if(l==="zone")return -2;if(l==="wall")return -1;if(l==="eq")return 0;if(o.t==="zone")return 1;if(o.t==="arrow")return 2;return 3};
  const L=S.filter(o=>show[LY(o)]&&!isHid(o)).sort((a,b)=>rank(a)-rank(b)||(LY(a)===act)-(LY(b)===act)||(rank(a)===0?(ORDER[a.t]-ORDER[b.t]||(ORDER[a.t]<=2?b.w*b.h-a.w*a.h:0)):0));
  const badges=[];
  for(const o of L){
   const on=LY(o)===act,isSel=SEL.has(o.id),dimO=!on&&!isSel&&viewL[LY(o)]!=="bright";
   const lk=isLk(o);g+=`<g data-oid="${o.id}" ${(on||isSel)&&!bgMode&&!lk?`data-id="${o.id}" style="cursor:move"`:`${dimO?`opacity=".35"`:""} pointer-events="none"`}>`;
-  g+=o.t==="seg"?drawSeg(o):o.t==="arrow"?drawArrow(o):o.t==="mk"?drawMk(o):o.t==="zone"?drawZone(o):drawEq(o);
+  g+=o.t==="zz"?drawZZ(o):o.t==="seg"?drawSeg(o):o.t==="arrow"?drawArrow(o):o.t==="mk"?drawMk(o):o.t==="zone"?drawZone(o):drawEq(o);
   if(hasMat(o)&&o.m&&MAT[o.m]){const m=MAT[o.m],sz=Math.min(14,o.w/3,o.h/2.5);if(sz>=7)g+=`<rect x="${o.x+o.w-sz-2}" y="${o.y+2}" width="${sz}" height="${sz}" rx="2" fill="${m[3]}" pointer-events="none"/><text x="${o.x+o.w-sz/2-2}" y="${o.y+2+sz/2}" text-anchor="middle" dominant-baseline="central" font-size="${sz*.75}" font-weight="600" fill="#fff">${m[2]}</text>`}
   if(isSel&&hasMat(o)&&window.__canEdit&&!bgMode)badges.push(o);
   if(isSel&&SEL.size>1){const b=bbox(o);g+=`<rect x="${b.x-5}" y="${b.y-5}" width="${b.w+10}" height="${b.h+10}" fill="none" stroke="var(--sel)" stroke-width="2" stroke-dasharray="6 4" pointer-events="none"/>`}
   else if(isSel){
    if(isLine(o))g+=`<circle data-end="1" cx="${o.x}" cy="${o.y}" r="11" fill="var(--sel)" style="cursor:grab"/><circle data-end="2" cx="${o.x2}" cy="${o.y2}" r="11" fill="var(--sel)" fill-opacity=".85" style="cursor:grab"/>`;
+   else if(o.t==="zz")g+=absR(o).map((r,i)=>`<rect x="${r.x-3}" y="${r.y-3}" width="${r.w+6}" height="${r.h+6}" fill="none" stroke="var(--sel)" stroke-width="2" stroke-dasharray="8 5" pointer-events="none"/><rect data-zr="${i}" x="${r.x+r.w-10}" y="${r.y+r.h-10}" width="20" height="20" rx="4" fill="var(--sel)" style="cursor:nwse-resize"/>`).join("");
    else g+=`<rect x="${o.x-4}" y="${o.y-4}" width="${o.w+8}" height="${o.h+8}" fill="none" stroke="var(--sel)" stroke-width="2" stroke-dasharray="8 5" pointer-events="none"/><rect data-rz="${o.id}" x="${o.x+o.w-10}" y="${o.y+o.h-10}" width="20" height="20" rx="4" fill="var(--sel)" style="cursor:nwse-resize"/>`;
   }
   g+=`</g>`;
  }
  if(!(drag&&drag.moved))for(const o of badges){const m=MAT[o.m],t=m?m[1]:"Матеріал?",w=t.length*7.4+30,x=o.x+o.w/2-w/2,y=o.y-34;
   g+=`<g data-mat="${o.id}" style="cursor:pointer"><rect x="${x}" y="${y}" width="${w}" height="24" rx="12" fill="${m?m[3]:"var(--paper)"}" stroke="${m?m[3]:"var(--mute)"}" stroke-width="1.5"/><text x="${x+12}" y="${y+12.5}" dominant-baseline="central" font-size="13" font-weight="600" fill="${m?"#fff":"var(--mute)"}">${t}</text><text x="${x+w-13}" y="${y+12.5}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="${m?"#fff":"var(--mute)"}">⟳</text></g>`}
+ if(drag&&drag.newz){const n=drag.newz,x=Math.min(n.x0,n.x1),y=Math.min(n.y0,n.y1);g+=`<rect x="${x}" y="${y}" width="${Math.abs(n.x1-n.x0)}" height="${Math.abs(n.y1-n.y0)}" fill="#7d3c98" fill-opacity=".1" stroke="#7d3c98" stroke-width="2" stroke-dasharray="6 4" pointer-events="none"/>`}
  if(drag&&drag.lasso){const L2=drag.lasso,x=Math.min(L2.x0,L2.x1),y=Math.min(L2.y0,L2.y1);g+=`<rect x="${x}" y="${y}" width="${Math.abs(L2.x1-L2.x0)}" height="${Math.abs(L2.y1-L2.y0)}" fill="var(--sel)" fill-opacity=".08" stroke="var(--sel)" stroke-width="1.5" stroke-dasharray="6 4" pointer-events="none"/>`}
  if(bgMode&&bg.src){const bx=bg.x||0,by=bg.y||0;g+=`<rect data-bg="1" x="${bx}" y="${by}" width="${bg.w}" height="${bg.h}" fill="transparent" stroke="var(--sel)" stroke-width="3" stroke-dasharray="10 6" style="cursor:move"/><rect data-bgrz="1" x="${bx+bg.w-14}" y="${by+bg.h-14}" width="28" height="28" rx="5" fill="var(--sel)" style="cursor:nwse-resize"/>`}
  cv.innerHTML=g;cv.style.width=(zoom*100)+"%";
- panel();if(!(drag&&drag.moved&&!drag.lasso))tree();tabs();selbar();setTb();
+ panel();if(!(drag&&drag.moved&&!drag.lasso)){tree();pass()}tabs();selbar();setTb();
 }
 function selbar(){const n=SEL.size,os=selObjs();
  const mo=os.filter(hasMat),cur=mo.length&&mo.every(o=>(o.m||"")===(mo[0].m||""))?(mo[0].m||""):null;
  document.querySelectorAll("#mat button").forEach(b=>{b.disabled=!mo.length;b.classList.toggle("on",!!mo.length&&cur!==null&&cur===b.dataset.m&&b.dataset.m!=="")});$("selc").textContent=n>1?`Вибрано: ${n}`:"";
  $("grp").disabled=n<2;$("ungrp").disabled=!os.some(o=>o.gid);$("mdup").disabled=!n;$("mdel").disabled=!n}
 function panel(){
- const o=S.find(x=>x.id===sel),p=$("panel"),isEq=o&&LY(o)==="eq";
+ const o=S.find(x=>x.id===sel),p=$("panel"),isEq=o&&LY(o)==="eq";p.style.display=act==="zone"?"none":"";
  p.classList.toggle("off",!o);for(const id of["lbl","typ","knd","rot","dup","del","note"])$(id).disabled=!o;
  $("typ").hidden=!!o&&!isEq;$("knd").hidden=!o||isEq;$("note").hidden=!o||isEq;$("rot").hidden=!!o&&(isLine(o)||o.t==="mk");
  if(!o){$("lbl").value="";$("lbl").placeholder="Оберіть елемент на плані";return}
@@ -309,8 +358,8 @@ const ICO={eye:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stro
  lock:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg>',
  unlock:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015-.5"/></svg>'};
 let viewL={},lockL={},openL=new Set([act]),closedG=new Set(),tq="",lastSelKey="";
-try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.lockL)lockL=v.lockL;if(v&&v.viewL)viewL=v.viewL;if(v&&v.openL)openL=new Set(v.openL)}catch(e){}
-const saveUI=()=>{try{localStorage.setItem(VKEY,JSON.stringify({show,act,lockL,viewL,openL:[...openL]}))}catch(e){}};
+try{const v=JSON.parse(localStorage.getItem(VKEY));if(v&&v.lockL)lockL=v.lockL;if(v&&MODES[v.mode])mode=v.mode;if(!MODES[mode].includes(act))act=MODES[mode][0];if(v&&v.viewL)viewL=v.viewL;if(v&&v.openL)openL=new Set(v.openL)}catch(e){}
+const saveUI=()=>{try{localStorage.setItem(VKEY,JSON.stringify({show,act,mode,lockL,viewL,openL:[...openL]}))}catch(e){}};
 const isHid=o=>!!o.hid,isLk=o=>!!o.lk||!!lockL[LY(o)];
 const oname=o=>LY(o)==="eq"?(o.l||"без назви"):((o.l?o.l+" · ":"")+((K[o.k]||[])[2]||""));
 function oicon(o){if(LY(o)==="eq"){const c={room:"var(--wall)",part:"var(--wall)",cage:"var(--tealk)",sink:"var(--bluek)",water:"var(--bluek)",door:"var(--ambk)",note:"var(--mute)"}[o.t]||"var(--mute)";return `<span class="ti" style="background:${c}"></span>`}
@@ -321,7 +370,8 @@ function tree(){
  const allG=[...new Set(S.filter(o=>o.gid).map(o=>o.gid))],gname=g=>(S.find(o=>o.gid===g&&o.gn)||{}).gn||("Група "+(allG.indexOf(g)+1));
  const row=(o,d)=>`<div class="tn${SEL.has(o.id)?" on":""}${isHid(o)||!show[LY(o)]?" off":""}" style="--d:${d}" data-id="${o.id}"><span class="car x"></span>${oicon(o)}<span class="nm">${esc(oname(o))}</span>${o.m&&MAT[o.m]?`<span class="mt" style="background:${MAT[o.m][3]}" title="${MAT[o.m][1]}">${MAT[o.m][2]}</span>`:""}${ib("lock",!!o.lk,`data-lk="${o.id}"`)}${ib("eye",isHid(o),`data-hd="${o.id}"`)}</div>`;
  let h="",any=false;
- for(const [lid,lname,lcol] of LAYERS){
+ const zm=mode==="zones";$("tnodes").hidden=zm;document.querySelector(".tree .ts").hidden=zm;$("pass").hidden=!zm;if(zm)return;
+ for(const [lid,lname,lcol] of LAYERS.filter(l=>MODES.rooms.includes(l[0]))){
   const items=S.filter(o=>LY(o)===lid&&match(o));if(q&&!items.length)continue;any=true;
   const open=q?true:openL.has(lid);
   h+=`<div class="tn layer${lid===act?" act":""}${show[lid]?"":" off"}" style="--d:0" data-l="${lid}"><button type="button" class="car" data-cl="${lid}">${open?"▾":"▸"}</button><span class="ti" style="background:${lcol}"></span><span class="nm">${esc(lname)}</span><span class="ct">${S.filter(o=>LY(o)===lid).length}</span><button type="button" class="ib${viewL[lid]==="bright"?" set":""}" data-lv="${lid}" title="${viewL[lid]==="bright"?"Яскраво (коли шар не активний). Клік — приглушити":"Приглушено (коли шар не активний). Клік — яскраво"}">${viewL[lid]==="bright"?"●":"◐"}</button>${ib("lock",!!lockL[lid],`data-ll="${lid}"`)}${ib("eye",!show[lid],`data-lh="${lid}"`,false)}</div>`;
@@ -338,6 +388,41 @@ function tree(){
  box.innerHTML=any?h:`<div class="tempty">Нічого не знайдено</div>`;
  const key=[...SEL].join(",");if(key!==lastSelKey){lastSelKey=key;const el=box.querySelector(".tn.on");if(el){const r=el.getBoundingClientRect(),br=box.getBoundingClientRect();if(r.top<br.top||r.bottom>br.bottom)el.scrollIntoView({block:"nearest"})}}
 }
+function inZ(o,z){const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;return absR(z).some(r=>cx>=r.x&&cx<=r.x+r.w&&cy>=r.y&&cy<=r.y+r.h)}
+function pass(){const box=$("pass");if(mode!=="zones")return;if(box.contains(document.activeElement)&&document.activeElement.tagName==="INPUT")return;
+ const ed=!!window.__canEdit,z=SEL.size===1?S.find(x=>x.id===sel&&x.t==="zz"):null,zs=S.filter(o=>o.t==="zz");
+ const opt=(arr,v,emp)=>`<option value="">${emp}</option>`+arr.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("");
+ const tag=c=>c!=null?`<span class="cls" style="background:${CLS[c][1]}">${CLS[c][0]}</span>`:`<span class="cls" style="background:#999">без класу</span>`;
+ if(!z){box.innerHTML=`<h3>Зони: ${zs.length}</h3>`+(zs.length?zs.map(q=>`<div class="zl" data-z="${q.id}">${tag(zcls(q))}<span>${esc(q.nm||(ZTM[q.zt]?ZTM[q.zt][1]:"Зона без типу"))}</span></div>`).join(""):`<div class="pl">Перейдіть на шар «Зони» і тягніть мишкою по плану, щоб намалювати першу зону.</div>`);
+  box.querySelectorAll("[data-z]").forEach(d=>d.onclick=()=>{if(act!=="zone"){act="zone";presets()}setSel([+d.dataset.z]);draw()});return}
+ const c=zcls(z),tc=ZTM[z.zt]?ZTM[z.zt][2]:null,ov=z.cls!=null&&z.cls!=="";
+ const objs=S.filter(o=>LY(o)==="eq"&&!isHid(o)&&inZ(o,z)),cnt={};objs.forEach(o=>{const k=(o.ot||o.l||"без назви").toLowerCase();cnt[k]=(cnt[k]||0)+1});
+ const mats={};objs.filter(o=>o.m&&MAT[o.m]).forEach(o=>mats[MAT[o.m][1]]=(mats[MAT[o.m][1]]||0)+1);const wet=objs.filter(o=>o.t==="sink"||o.t==="water").length;
+ const dis=ed?"":" disabled";
+ box.innerHTML=`<div class="row">${tag(c)}<span class="hint">${z.r.length} прямок.</span><button type="button" id="zback" style="margin-left:auto;min-height:30px;font-size:13px">← Усі зони</button></div>
+ <input class="zn" id="znm" placeholder="${esc(ZTM[z.zt]?ZTM[z.zt][1]:"Назва зони")}" value="${esc(z.nm||"")}"${dis}>
+ <div class="row"><label>Тип</label><select id="zzt"${dis}><option value="">— не вибрано —</option>${ZT.map(t=>`<option value="${t[0]}"${t[0]===z.zt?" selected":""}>${esc(t[1])}</option>`).join("")}</select></div>
+ <div class="row"><label>Клас</label><select id="zcl"${dis}><option value="">з типу${tc!=null?" ("+CLS[tc][0].toLowerCase()+")":""}</option>${CLS.map((k,i)=>`<option value="${i}"${ov&&+z.cls===i?" selected":""}>${k[0]}</option>`).join("")}</select></div>
+ ${ov?`<div class="row"><label>Причина</label><input id="zwhy" value="${esc(z.why||"")}" placeholder="Чому клас змінено вручну"${dis}></div>`:""}
+ <div class="row"><label>Підлога</label><select id="zfl"${dis}>${opt(FLOORS,z.fl,"— не задано —")}</select></div>
+ <div class="row"><label>Стіни</label><select id="zwl"${dis}>${opt(WALLS,z.wl,"— не задано —")}</select></div>
+ <h3>Вміст: ${objs.length}</h3>${objs.length?`<ul>${Object.entries(cnt).sort().map(([k,v])=>`<li>${esc(k)}${v>1?" × "+v:""}</li>`).join("")}</ul>`:`<div class="pl">В зоні немає обладнання (рахується за центром об’єкта).</div>`}
+ <div class="row hint">Мокрих точок: ${wet}${Object.keys(mats).length?" · "+Object.entries(mats).map(([k,v])=>k+" "+v).join(", "):""}</div>
+ <h3>Ризики</h3><div class="pl">Пропозиції з’являться, коли підключимо правила.</div>
+ <h3>Процедури</h3><div class="pl">Стандартні процедури підтягнуться з бази правил.</div>
+ <h3>Підготувати</h3><div class="pl">Підрахунок матеріалів — після правил.</div>
+ ${ed?`<div class="row"><button type="button" id="zdelr"${z.r.length<2?" disabled":""}>Прибрати останній прямокутник</button><button type="button" id="zdel">Видалити зону</button></div>`:""}`;
+ const ch=(id,f)=>{const el=box.querySelector("#"+id);if(el)el.onchange=()=>{push();f(el.value);draw();save()}};
+ box.querySelector("#zback").onclick=()=>{setSel([]);draw()};
+ ch("znm",v=>z.nm=v.trim());ch("zzt",v=>z.zt=v);ch("zcl",v=>{if(v==="")delete z.cls,delete z.why;else z.cls=+v});ch("zwhy",v=>z.why=v);ch("zfl",v=>z.fl=v);ch("zwl",v=>z.wl=v);
+ const dr=box.querySelector("#zdelr");if(dr)dr.onclick=()=>{push();const rs=absR(z);rs.pop();setAbs(z,rs);draw();save()};
+ const dz=box.querySelector("#zdel");if(dz)dz.onclick=()=>{push();S=S.filter(o=>o!==z);setSel([]);draw();save()};
+}
+function ztMenu(z){const m=$("ztm"),r=cv.getBoundingClientRect(),k=r.width/1260,rs=absR(z)[0];
+ m.innerHTML=`<div class="h">Тип зони</div>`+ZT.map(t=>`<button type="button" data-t="${t[0]}"><span class="cls" style="background:${CLS[t[2]][1]}">${CLS[t[2]][0]}</span>${esc(t[1])}</button>`).join("")+`<button type="button" data-t="">Пізніше</button>`;
+ m.hidden=false;const x=r.left+(rs.x+rs.w)*k+8,y=r.top+rs.y*k;m.style.left=Math.min(x,innerWidth-240)+"px";m.style.top=Math.max(8,Math.min(y,innerHeight-m.offsetHeight-8))+"px";
+ m.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{m.hidden=true;if(b.dataset.t){push();z.zt=b.dataset.t;draw();save()}})}
+document.addEventListener("pointerdown",e=>{if(!$("ztm").hidden&&!e.target.closest("#ztm"))$("ztm").hidden=true},true);
 const list=tree;
 $("tq").addEventListener("input",e=>{tq=e.target.value;tree()});
 $("tq").addEventListener("keydown",e=>e.stopPropagation());
@@ -371,7 +456,9 @@ $("tnodes").addEventListener("dblclick",e=>{
 });
 const setTb=()=>document.documentElement.style.setProperty("--tb",document.querySelector(".top").offsetHeight+"px");addEventListener("resize",setTb);
 function tabs(){
- $("tabs").innerHTML=LAYERS.map(([id,n,c])=>{const cnt=S.filter(o=>LY(o)===id).length;return `<span class="tab" style="--tc:${c}" aria-current="${id===act}"><button type="button" data-tab="${id}">${esc(n)} <span class="hint">${cnt}</span></button><input type="checkbox" data-vis="${id}" ${show[id]?"checked":""} aria-label="Показувати шар ${esc(n)}"></span>`}).join("");
+ $("modes").innerHTML=Object.keys(MODES).map(m=>`<button type="button" data-mode="${m}" aria-current="${m===mode}">${MODEN[m]}</button>`).join("");
+ $("modes").querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(mode===b.dataset.mode)return;mode=b.dataset.mode;act=MODES[mode][0];show[act]=true;openL.add(act);setSel([]);$("ztm").hidden=true;presets();draw();save()});
+ $("tabs").innerHTML=LAYERS.filter(l=>MODES[mode].includes(l[0])).map(([id,n,c])=>{const cnt=S.filter(o=>LY(o)===id).length;return `<span class="tab" style="--tc:${c}" aria-current="${id===act}"><button type="button" data-tab="${id}">${esc(n)} <span class="hint">${cnt}</span></button><input type="checkbox" data-vis="${id}" ${show[id]?"checked":""} aria-label="Показувати шар ${esc(n)}"></span>`}).join("");
  $("tabs").querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{act=b.dataset.tab;show[act]=true;openL.add(act);setSel([]);presets();draw();save()});
  $("tabs").querySelectorAll("[data-vis]").forEach(c=>c.onchange=()=>{show[c.dataset.vis]=c.checked;setSel([...SEL].filter(i=>show[LY(S.find(x=>x.id===i)||{})]));draw();save()});
 }
@@ -381,23 +468,29 @@ cv.addEventListener("pointerdown",e=>{
  const mb=e.target.closest("[data-mat]");if(mb){e.preventDefault();const o=S.find(x=>x.id===+mb.dataset.mat);if(o){push();const order=["",...MATS.map(m=>m[0])],i=order.indexOf(o.m||"");const nx=order[(i+1)%order.length];if(nx)o.m=nx;else delete o.m;draw();save()}return}
  if(bgMode){if(!bg.src)return;const t=e.target.getAttribute("data-bgrz")?"rz":e.target.getAttribute("data-bg")?"mv":null;if(!t)return;
   const p=pt(e);drag={bg:t,px:p.x,py:p.y,ox:bg.x||0,oy:bg.y||0,ow:bg.w,oh:bg.h,moved:false};cv.setPointerCapture(e.pointerId);e.preventDefault();return}
+ const zr=e.target.getAttribute("data-zr");
+ if(zr!=null){const o=S.find(x=>x.id===sel);if(o){push();drag={o,zri:+zr,zsnap:zSnap([o]),zmoved:[o],moved:false};cv.setPointerCapture(e.pointerId);e.preventDefault()}return}
  const rz=e.target.getAttribute("data-rz"),end=e.target.getAttribute("data-end"),g=e.target.closest("[data-id]");
+ if(!g&&!rz&&act==="zone"){const p=pt(e),one=SEL.size===1?S.find(x=>x.id===sel&&x.t==="zz"):null;drag={newz:{x0:sn(p.x),y0:sn(p.y),x1:sn(p.x),y1:sn(p.y)},addTo:e.shiftKey?one:null,moved:false};if(!e.shiftKey)setSel([]);cv.setPointerCapture(e.pointerId);e.preventDefault();draw();return}
  if(!g&&!rz){const p=pt(e);if(e.shiftKey){drag={lasso:{x0:p.x,y0:p.y,x1:p.x,y1:p.y},base:new Set(SEL)};cv.setPointerCapture(e.pointerId);e.preventDefault()}else setSel([]);draw();return}
  const id=+(rz||g.dataset.id),o=S.find(x=>x.id===id);
  if(e.shiftKey&&!rz&&!end){const ids=grpOf(id),has=SEL.has(id),n=new Set(SEL);ids.forEach(i=>has?n.delete(i):n.add(i));setSel(n);draw();e.preventDefault();return}
  if(!SEL.has(id))setSel(grpOf(id));push();
  const p=pt(e);drag={o,rz:!!rz,end,dx:p.x-o.x,dy:p.y-o.y,px:p.x,py:p.y,ox:o.x,oy:o.y,ox2:o.x2,oy2:o.y2,moved:false,
   multi:SEL.size>1&&!rz&&!end?selObjs().map(q=>({q,x:q.x,y:q.y,x2:q.x2,y2:q.y2})):null};
+ {const mz=(drag.multi?drag.multi.map(m=>m.q):[o]).filter(q=>q.t==="zz");if(mz.length){drag.zmoved=mz;drag.zsnap=zSnap(mz)}}
  cv.setPointerCapture(e.pointerId);draw();e.preventDefault();
 });
 cv.addEventListener("pointermove",e=>{
  if(!drag)return;const p=pt(e),o=drag.o;drag.moved=true;
  if(drag.bg){if(drag.bg==="mv"){bg.x=Math.round(drag.ox+p.x-drag.px);bg.y=Math.round(drag.oy+p.y-drag.py)}
   else{const w=Math.max(100,drag.ow+(p.x-drag.px));bg.w=Math.round(w);bg.h=Math.round(drag.oh*w/drag.ow)}draw();return}
+ if(drag.newz){drag.newz.x1=sn(p.x);drag.newz.y1=sn(p.y);draw();return}
+ if(drag.zri!=null){const rs=absR(o),r=rs[drag.zri];r.w=Math.max(20,sn(p.x-r.x));r.h=Math.max(20,sn(p.y-r.y));setAbs(o,rs);zClip([o],drag.zsnap);draw();return}
  if(drag.lasso){drag.lasso.x1=p.x;drag.lasso.y1=p.y;const L2=drag.lasso,x0=Math.min(L2.x0,L2.x1),x1=Math.max(L2.x0,L2.x1),y0=Math.min(L2.y0,L2.y1),y1=Math.max(L2.y0,L2.y1);
   const hit=new Set(drag.base);S.filter(q=>LY(q)===act&&show[act]&&!isHid(q)&&!isLk(q)).forEach(q=>{const b=bbox(q);if(b.x<=x1&&b.x+b.w>=x0&&b.y<=y1&&b.y+b.h>=y0)grpOf(q.id).forEach(i=>hit.add(i))});setSel(hit);draw();return}
  if(drag.multi){let dx=p.x-drag.px,dy=p.y-drag.py;if(snap){const ax=drag.o.x,ay=drag.o.y;dx=sn(drag.ox+dx)-drag.ox;dy=sn(drag.oy+dy)-drag.oy}else{dx=Math.round(dx);dy=Math.round(dy)}
-  for(const m of drag.multi){m.q.x=m.x+dx;m.q.y=m.y+dy;if(isLine(m.q)){m.q.x2=m.x2+dx;m.q.y2=m.y2+dy}}draw();return}
+  for(const m of drag.multi){m.q.x=m.x+dx;m.q.y=m.y+dy;if(isLine(m.q)){m.q.x2=m.x2+dx;m.q.y2=m.y2+dy}}if(drag.zsnap)zClip(drag.zmoved,drag.zsnap);draw();return}
  if(isLine(o)){
   if(drag.end){let nx=sn(p.x),ny=sn(p.y);const fx=drag.end==="1"?o.x2:o.x,fy=drag.end==="1"?o.y2:o.y;
    if(o.t==="seg"||e.shiftKey){if(Math.abs(nx-fx)<12)nx=fx;if(Math.abs(ny-fy)<12)ny=fy;
@@ -406,9 +499,14 @@ cv.addEventListener("pointermove",e=>{
   else{const dx=sn(p.x-drag.px),dy=sn(p.y-drag.py);o.x=drag.ox+dx;o.y=drag.oy+dy;o.x2=drag.ox2+dx;o.y2=drag.oy2+dy}
  }else if(drag.rz){o.w=Math.max(16,sn(p.x-o.x));o.h=Math.max(16,sn(p.y-o.y));if(o.t==="water"||o.t==="mk")o.h=o.w}
  else{o.x=Math.max(0,Math.min(1260-o.w,sn(p.x-drag.dx)));o.y=Math.max(0,Math.min(1280-o.h,sn(p.y-drag.dy)))}
+ if(drag.zsnap)zClip(drag.zmoved,drag.zsnap);
  draw();
 });
-const endDrag=()=>{if(drag){if(!drag.bg&&!drag.lasso&&!drag.moved)hist.pop();const l=drag.lasso;if(drag.moved&&drag.o)remember(drag.o);drag=null;if(l)draw();else save()}};
+const endDrag=e=>{if(drag&&drag.newz){const n=drag.newz,x=Math.min(n.x0,n.x1),y=Math.min(n.y0,n.y1),w=Math.abs(n.x1-n.x0),h=Math.abs(n.y1-n.y0),to=drag.addTo;drag=null;
+  if(w>=20&&h>=20){push();if(to){const rs=absR(to);rs.push({x,y,w,h});setAbs(to,rs);zClip([to]);zClean();setSel([to.id]);draw();save()}
+   else{const z={ly:"zone",t:"zz",uid:uidv(),nm:"",zt:"",x,y,w,h,r:[[0,0,w,h]],id:nid()};S.push(z);zClip([z]);zClean();setSel([z.id]);draw();save();ztMenu(z)}}else draw();return}
+ if(drag&&drag.zsnap){zClean()}
+ if(drag){if(!drag.bg&&!drag.lasso&&!drag.moved)hist.pop();const l=drag.lasso;if(drag.moved&&drag.o)remember(drag.o);drag=null;if(l)draw();else save()}};
 cv.addEventListener("pointerup",endDrag);cv.addEventListener("pointercancel",endDrag);
 cv.addEventListener("dblclick",e=>{if(!window.__canEdit)return;const g=e.target.closest("[data-id]");if(g){setSel([+g.dataset.id]);draw();$("lbl").focus();$("lbl").select()}});
 for(const f of ["lbl","note"])$(f).addEventListener("focus",()=>push());
@@ -421,7 +519,7 @@ $("rot").onclick=()=>{const o=S.find(x=>x.id===sel);if(o&&!isLine(o)){push();con
 $("dup").onclick=()=>{const o=S.find(x=>x.id===sel);if(o){push();const n={...o,id:nid(),x:o.x+20,y:o.y+20};if(isLine(o)){n.x2=o.x2+20;n.y2=o.y2+20}S.push(n);setSel([n.id]);draw();save()}};
 $("del").onclick=()=>{if(!SEL.size)return;push();S=S.filter(x=>!SEL.has(x.id));setSel([]);draw();save()};
 $("mdel").onclick=$("del").onclick;
-$("mdup").onclick=()=>{if(!SEL.size)return;push();let id=nid();const gm={},ns=selObjs().map(o=>{const n={...o,id:id++,x:o.x+20,y:o.y+20};if(isLine(o)){n.x2=o.x2+20;n.y2=o.y2+20}if(o.gid)n.gid=gm[o.gid]||(gm[o.gid]=Date.now()+Math.random());return n});S.push(...ns);setSel(ns.map(n=>n.id));draw();save()};
+$("mdup").onclick=()=>{if(!SEL.size)return;push();let id=nid();const gm={},ns=selObjs().map(o=>{const n={...o,id:id++,uid:uidv(),x:o.x+20,y:o.y+20};if(o.r)n.r=o.r.map(a=>[...a]);if(isLine(o)){n.x2=o.x2+20;n.y2=o.y2+20}if(o.gid)n.gid=gm[o.gid]||(gm[o.gid]=Date.now()+Math.random());return n});S.push(...ns);setSel(ns.map(n=>n.id));draw();save()};
 $("dup").onclick=$("mdup").onclick;
 document.querySelectorAll("#mat button").forEach(b=>b.onclick=()=>{const mo=selObjs().filter(hasMat);if(!mo.length)return;push();mo.forEach(o=>{if(b.dataset.m)o.m=b.dataset.m;else delete o.m});draw();save()});
 $("grp").onclick=()=>{if(SEL.size<2)return;push();const gid=Date.now();selObjs().forEach(o=>o.gid=gid);draw();save()};
@@ -438,7 +536,7 @@ document.addEventListener("keydown",e=>{
  if(e.key==="Escape"){setSel([]);draw();return}
  if(SEL.size&&e.key.startsWith("Arrow")){e.preventDefault();push();const st=snap?GS:e.shiftKey?10:2;
   const dx=e.key==="ArrowLeft"?-st:e.key==="ArrowRight"?st:0,dy=e.key==="ArrowUp"?-st:e.key==="ArrowDown"?st:0;
-  selObjs().forEach(o=>{o.x+=dx;o.y+=dy;if(isLine(o)){o.x2+=dx;o.y2+=dy}});draw();save()}
+  selObjs().forEach(o=>{o.x+=dx;o.y+=dy;if(isLine(o)){o.x2+=dx;o.y2+=dy}});const mz=selObjs().filter(q=>q.t==="zz");if(mz.length){zClip(mz);zClean()}draw();save()}
 });
 const GROUPS={eq:[
 ["Утримання",[["Клітка мала","cage",50,40],["Клітка середня","cage",60,45],["Клітка велика","cage",80,60],["Бокс з підігрівом","cage",60,50],["Бокс з вентиляцією","cage",60,50],["Кисневий бокс","cage",60,50],["Бокс-ізолятор","cage",70,60],["Вольєр","cage",120,100],["Блок кліток","cage",160,60],["Переноска","cage",40,30]]],
@@ -450,6 +548,7 @@ const GROUPS={eq:[
 ["Пральня і відходи",[["Пральна машина","eq",50,50],["Сушильна машина","eq",50,50],["Кошик брудної білизни","door",40,40],["Контейнер медвідходів","door",35,35],["Контейнер для гострих","door",25,25],["Бак загальних відходів","door",40,40],["Інвентар для прибирання","eq",50,40]]],
 ["Рецепція та офіс",[["Стійка рецепції","eq",160,50],["Диван очікування","eq",120,45],["Стілець","eq",30,30],["Комп'ютер","eq",40,30],["Принтер","eq",35,30],["Ваги на рецепції","eq",60,45]]],
 ["Приміщення",[["Кімната","room",300,200],["Перегородка","part",200,140],["Двері","door",50,12],["Сходи","stair",80,80],["Напис","note",140,30]]]],
+ zone:[],
  wall:[["Стіни",["w_wall","w_part","w_high","w_low","w_win"]],["Проходи",["w_pass","w_door","w_dlock"]]],
  flow:[["Стрілки",["a_pat","a_sus","a_staff","a_clean","a_dirty","a_linen"]],["Точки",["p_in","p_wait","p_tri","p_iso","p_cross","p_hand"]]],
  risk:[["Зони",["z_hi","z_mid","z_lo"]],["Знаки",["r_bio","r_blood","r_aer","r_hair","r_touch","r_wet","r_cross","r_sharp"]]],
@@ -468,9 +567,10 @@ function spawnPos(w,h){const v=visRect(),cl=(a,lo,hi)=>Math.max(lo,Math.min(hi,a
  if(!lastPos){x=(v.x0+v.x1-w)/2;y=(v.y0+v.y1-h)/2}
  x=cl(x,0,1260-w);y=cl(y,0,1280-h);return{x:sn(x),y:sn(y)}}
 const remember=o=>{if(!o)return;const b=bbox(o);lastPos={x:b.x,y:b.y,h:b.h}};
-function add(n){push();n.id=nid();S.push(n);remember(n);setSel([n.id]);draw();save()}
+function add(n){push();n.id=nid();n.uid=uidv();S.push(n);remember(n);setSel([n.id]);draw();save()}
 function presets(){
  const pz=$("presets");pz.innerHTML="";
+ if(act==="zone"){pz.innerHTML='<span class="gl">Тягніть по порожньому місцю плану — нова зона. Shift+тягнути — додати прямокутник до виділеної зони. Червоний квадрат у куті — розмір прямокутника.</span>';return}
  GROUPS[act].forEach(([gname,items])=>{
   const dd=document.createElement("span");dd.className="dd";
   const tb=document.createElement("button");tb.type="button";tb.className="ddb";tb.innerHTML=esc(gname)+' <span class="hint">'+items.length+'</span> ▾';
@@ -478,7 +578,7 @@ function presets(){
   tb.onclick=e=>{e.stopPropagation();const was=!m.hidden;document.querySelectorAll(".menu").forEach(x=>x.hidden=true);document.querySelectorAll(".ddb").forEach(x=>x.classList.remove("open"));if(!was){m.hidden=false;tb.classList.add("open")}};
   items.forEach(it=>{const b=document.createElement("button");b.type="button";
    if(act==="eq"){const [lab,t,w,h]=it;b.innerHTML='<span class="sw" style="background:'+SW[t]+(t==="water"?';border-radius:50%':'')+'"></span>'+esc(lab);
-    b.onclick=()=>{const q=spawnPos(w,h);add({t,l:(lab==="Двері"||t==="water"&&lab==="Точка води")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h})}}
+    b.onclick=()=>{const q=spawnPos(w,h);add({t,ot:lab,l:(lab==="Двері"||t==="water"&&lab==="Точка води")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h})}}
    else{const k=K[it],sh=k[1];
     b.innerHTML=(sh==="seg"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="2" y1="6" x2="24" y2="6" stroke="${k[4]}" stroke-width="${Math.min(6,k[6])}" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/></svg>`:sh==="arrow"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="1" y1="6" x2="17" y2="6" stroke="${k[4]}" stroke-width="3" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/><polygon points="25,6 16,1 16,11" fill="${k[4]}"/></svg>`:sh==="zone"?`<span class="sw" style="background:${k[4]}33;border:2px dashed ${k[4]}"></span>`:`<span class="ic" style="background:${sh==="tri"?"#ffd34d":sh==="doc"?"transparent":k[4]};color:${sh==="tri"?"#1d2326":sh==="doc"?k[4]:"#fff"};${sh==="doc"?`border:1.5px solid ${k[4]}`:""}${sh==="pt"?";border-radius:10px":""}">${esc(k[3])}</span>`)+esc(k[2]);
     b.onclick=()=>{
@@ -521,11 +621,11 @@ presets();draw();
 /* ---- база даних ---- */
 const ENV=window.PLAN_ENV||{name:"prod",table:"plan_prod"},SB_URL="https://yyqlldeadajhhcwvjocj.supabase.co",SB_KEY="sb_publishable_Wz4vFrtTpOTF7APubvBolg_8dqdvR-f";
 const sb=supabase.createClient(SB_URL,SB_KEY);
-const docJ=()=>JSON.stringify({items:S,bg:bg.src?bg:null});let last="",ver=null,dirty=false,timer=null,saving=false,conflict=false;
+const docJ=()=>JSON.stringify({items:S,bg:bg.src?bg:null});let migr=false,last="",ver=null,dirty=false,timer=null,saving=false,conflict=false;
 window.__canEdit=false;
 const st=(t,err)=>{$("save").textContent=t;$("save").classList.toggle("err",!!err)};
 if(ENV.name!=="prod"){$("envb").innerHTML=`<span class="badge">ПРЕПРОД — тестові дані</span>`;$("copyprod").hidden=false}
-function applyDoc(row){ver=row.version;const d=row.doc||{};S=Array.isArray(d.items)?d.items:[];bg=d.bg&&d.bg.src?d.bg:{src:"",w:960,h:1280};hist=[];setSel([]);draw();$("io").value=JSON.stringify(S);last=docJ()}
+function applyDoc(row){ver=row.version;const d=row.doc||{};S=Array.isArray(d.items)?d.items:[];migr=false;S.forEach(o=>{if(!o.uid){o.uid=uidv();migr=true}if(LY(o)==="eq"&&!o.ot&&o.l){o.ot=o.l;migr=true}});bg=d.bg&&d.bg.src?d.bg:{src:"",w:960,h:1280};hist=[];setSel([]);draw();$("io").value=JSON.stringify(S);last=docJ()}
 async function load(){st("Завантаження…");const {data,error}=await sb.from(ENV.table).select("doc,version,updated_at,updated_by").eq("id","main").single();
  if(error){st("Не вдалося завантажити: "+error.message,true);return}applyDoc(data);conflict=false;st(data.updated_by?`Збережено ${new Date(data.updated_at).toLocaleString("uk-UA")} · ${data.updated_by}`:"")}
 async function flush(){if(!dirty||saving||conflict||!window.__canEdit)return;saving=true;dirty=false;st("Зберігаю…");const j=docJ();
@@ -538,7 +638,7 @@ window.__dbSave=()=>{if(!window.__canEdit||docJ()===last)return;dirty=true;st("�
 addEventListener("beforeunload",e=>{if(dirty){flush();e.preventDefault()}});
 async function auth(){const {data:{session}}=await sb.auth.getSession();const email=session?.user?.email;
  let ed=false;if(email){const r=await sb.rpc("is_editor");ed=r.data===true}
- window.__canEdit=ed;document.body.classList.toggle("ro",!ed);
+ window.__canEdit=ed;if(ed&&migr){migr=false;setTimeout(()=>{last="";__dbSave()},50)}document.body.classList.toggle("ro",!ed);
  $("who").textContent=email?(ed?`Редагуєте як ${email}`:`${email} — немає права редагування, лише перегляд`):"Перегляд";
  $("login").hidden=!!email;$("logout").hidden=!email;if(!ed)setSel([]);draw()}
 $("login").onclick=async()=>{const email=prompt("Ваша пошта. Надішлемо посилання для входу.");if(!email)return;
