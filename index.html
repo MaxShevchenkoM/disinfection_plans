@@ -575,6 +575,7 @@ function tabs(){
  if(!rtab)rtab=mode;
  $("rtabs").innerHTML=RT.map(([k,n])=>`<button type="button" role="tab" class="${k==="file"?"file":""}" data-rt="${k}" aria-selected="${k===rtab}">${n}</button>`).join("");
  document.querySelectorAll("#ribbon .rbg").forEach(g=>g.hidden=!g.dataset.rt.split(" ").includes(rtab));
+ $("ribbon").hidden=![...document.querySelectorAll("#ribbon .rbg")].some(g=>!g.hidden&&!(document.body.classList.contains("ro")&&g.classList.contains("edit")));
  $("sbmode").textContent=MODEN[mode]+(MODES[mode].length?" · шар «"+(LAYERS.find(l=>l[0]===act)||[,""])[1]+"»":"");
  $("sbsel").textContent=SEL.size?"Виділено: "+SEL.size:"";$("sbzoom").textContent=Math.round(zoom*100)+"%";$("zval").textContent=Math.round(zoom*100)+"%";
  $("rtabs").querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const k=b.dataset.rt;rtab=k;if(!MODES[k]||mode===k){tabs();setTb();return}mode=k;if(MODES[mode].length){act=MODES[mode][0];show[act]=true;openL.add(act)}document.body.classList.toggle("m-result",mode==="result");if(mode==="result")result();setSel([]);$("ztm").hidden=true;presets();draw();save();setTb()});
