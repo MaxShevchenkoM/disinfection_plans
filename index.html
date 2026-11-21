@@ -53,7 +53,7 @@ details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13px/1.
 </style>
 </head>
 <body>
-<header><h1>План клініки</h1><span id="envb"></span><span class="hint">Оберіть шар угорі: редагуються лише елементи активного шару, решта видно блідо. Галочка ховає шар. Нові елементи з’являються праворуч від плану. Shift+клік додає об’єкт до виділення, Shift+рамка по порожньому місцю виділяє кілька. Стіни й стрілки тягніть за кінці: стіна сама вирівнюється по горизонталі чи вертикалі й чіпляється до кінців інших стін.</span></header>
+<header><h1>План клініки</h1><span id="envb"></span><span class="hint">Оберіть шар угорі: редагуються лише елементи активного шару, решта видно блідо. Галочка ховає шар. Новий елемент з’являється поруч із тим, що ви створили чи пересунули останнім; якщо те місце не видно на екрані — посередині видимої частини плану. Shift+клік додає об’єкт до виділення, Shift+рамка по порожньому місцю виділяє кілька. Стіни й стрілки тягніть за кінці: стіна сама вирівнюється по горизонталі чи вертикалі й чіпляється до кінців інших стін.</span></header>
 <div class="status"><span id="who">Перегляд</span><button id="login">Увійти для редагування</button><button id="logout" hidden>Вийти</button><span id="save"></span><button id="copyprod" class="edit" hidden>Скопіювати дані з проду в препрод</button></div>
 <div class="top">
 <div class="tabs" id="tabs"></div>
@@ -221,7 +221,7 @@ function drawSeg(o){
 const isLine=o=>o.t==="arrow"||o.t==="seg";
 function bbox(o){if(isLine(o))return{x:Math.min(o.x,o.x2),y:Math.min(o.y,o.y2),w:Math.abs(o.x2-o.x),h:Math.abs(o.y2-o.y)};return o}
 function draw(){
- let g=`<defs><pattern id="gr" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern></defs>${bg.src?`<image href="${bg.src}" x="${bg.x||0}" y="${bg.y||0}" width="${bg.w}" height="${bg.h}" preserveAspectRatio="none" opacity="${bgOp}" pointer-events="none"/>`:""}<rect width="1260" height="1280" fill="url(#gr)" pointer-events="none"/><text x="985" y="30" font-size="16" fill="var(--mute)">Нові елементи з’являються тут</text>`;
+ let g=`<defs><pattern id="gr" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern></defs>${bg.src?`<image href="${bg.src}" x="${bg.x||0}" y="${bg.y||0}" width="${bg.w}" height="${bg.h}" preserveAspectRatio="none" opacity="${bgOp}" pointer-events="none"/>`:""}<rect width="1260" height="1280" fill="url(#gr)" pointer-events="none"/>`;
  const rank=o=>{const l=LY(o);if(l==="wall")return -1;if(l==="eq")return 0;if(o.t==="zone")return 1;if(o.t==="arrow")return 2;return 3};
  const L=S.filter(o=>show[LY(o)]).sort((a,b)=>rank(a)-rank(b)||(LY(a)===act)-(LY(b)===act)||(rank(a)===0?(ORDER[a.t]-ORDER[b.t]||(ORDER[a.t]<=2?b.w*b.h-a.w*a.h:0)):0));
  for(const o of L){
@@ -300,7 +300,7 @@ cv.addEventListener("pointermove",e=>{
  else{o.x=Math.max(0,Math.min(1260-o.w,sn(p.x-drag.dx)));o.y=Math.max(0,Math.min(1280-o.h,sn(p.y-drag.dy)))}
  draw();
 });
-const endDrag=()=>{if(drag){if(!drag.bg&&!drag.lasso&&!drag.moved)hist.pop();const l=drag.lasso;drag=null;if(l)draw();else save()}};
+const endDrag=()=>{if(drag){if(!drag.bg&&!drag.lasso&&!drag.moved)hist.pop();const l=drag.lasso;if(drag.moved&&drag.o)remember(drag.o);drag=null;if(l)draw();else save()}};
 cv.addEventListener("pointerup",endDrag);cv.addEventListener("pointercancel",endDrag);
 cv.addEventListener("dblclick",e=>{if(!window.__canEdit)return;const g=e.target.closest("[data-id]");if(g){setSel([+g.dataset.id]);draw();$("lbl").focus();$("lbl").select()}});
 for(const f of ["lbl","note"])$(f).addEventListener("focus",()=>push());
@@ -343,22 +343,33 @@ const GROUPS={eq:[["Утримання",[["Клітка","cage",60,45],["Бок�
  store:[["Точки зберігання",["s_dez","s_inv","s_ster","s_inst","s_lc","s_ld","s_wm","s_wg","s_med","s_cold","s_feed","s_ppe"]]],
  vis:[["Що повісити",["v_dez","v_dil","v_hand","v_chk","v_ppe","v_zone","v_flow","v_sched","v_lab"]]]};
 const SW={room:"var(--room)",part:"transparent",eq:"var(--eq)",cage:"var(--teal)",sink:"var(--blue)",water:"var(--blue)",door:"var(--amb)",note:"transparent"};
-const spawnY=()=>{const r=S.filter(o=>show[LY(o)]&&Math.min(o.x,isLine(o)?o.x2:o.x)>=970).map(o=>{const b=bbox(o);return b.y+b.h+(o.t==="mk"?22:isLine(o)?14:0)});let y=r.length?Math.max(...r)+16:50;return y>1150?50:y};
-function add(n){push();n.id=nid();S.push(n);setSel([n.id]);draw();save()}
+let lastPos=null;
+function visRect(){const r=cv.getBoundingClientRect(),w=$("wrap").getBoundingClientRect(),tb=document.querySelector(".top").getBoundingClientRect().bottom,k=1260/r.width;
+ const x0=Math.max(r.left,w.left,0),x1=Math.min(r.right,w.right,innerWidth),y0=Math.max(r.top,w.top,tb,0),y1=Math.min(r.bottom,w.bottom,innerHeight);
+ if(x1-x0<20||y1-y0<20)return{x0:0,y0:0,x1:1260,y1:1280};
+ return{x0:(x0-r.left)*k,x1:(x1-r.left)*k,y0:(y0-r.top)*k,y1:(y1-r.top)*k}}
+function spawnPos(w,h){const v=visRect(),cl=(a,lo,hi)=>Math.max(lo,Math.min(hi,a));let x,y;
+ if(lastPos){x=lastPos.x+24;y=lastPos.y+24;
+  if(x+w>v.x1||y+h>v.y1){x=lastPos.x;y=lastPos.y+(lastPos.h||0)+16}
+  if(x<v.x0||y<v.y0||x+w>v.x1||y+h>v.y1)lastPos=null}
+ if(!lastPos){x=(v.x0+v.x1-w)/2;y=(v.y0+v.y1-h)/2}
+ x=cl(x,0,1260-w);y=cl(y,0,1280-h);return{x:sn(x),y:sn(y)}}
+const remember=o=>{if(!o)return;const b=bbox(o);lastPos={x:b.x,y:b.y,h:b.h}};
+function add(n){push();n.id=nid();S.push(n);remember(n);setSel([n.id]);draw();save()}
 function presets(){
  const pz=$("presets");pz.innerHTML="";
  GROUPS[act].forEach(([gname,items])=>{const gl=document.createElement("span");gl.className="gl";gl.textContent=gname+":";pz.appendChild(gl);
   items.forEach(it=>{const b=document.createElement("button");b.type="button";
    if(act==="eq"){const [lab,t,w,h]=it;b.innerHTML='<span class="sw" style="background:'+SW[t]+(t==="water"?';border-radius:50%':'')+'"></span>'+esc(lab);
-    b.onclick=()=>add({t,l:(lab==="Двері"||t==="water")?"":lab.toLowerCase(),x:985,y:spawnY(),w,h})}
+    b.onclick=()=>{const q=spawnPos(w,h);add({t,l:(lab==="Двері"||t==="water")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h})}}
    else{const k=K[it],sh=k[1];
     b.innerHTML=(sh==="seg"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="2" y1="6" x2="24" y2="6" stroke="${k[4]}" stroke-width="${Math.min(6,k[6])}" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/></svg>`:sh==="arrow"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="1" y1="6" x2="17" y2="6" stroke="${k[4]}" stroke-width="3" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/><polygon points="25,6 16,1 16,11" fill="${k[4]}"/></svg>`:sh==="zone"?`<span class="sw" style="background:${k[4]}33;border:2px dashed ${k[4]}"></span>`:`<span class="ic" style="background:${sh==="tri"?"#ffd34d":sh==="doc"?"transparent":k[4]};color:${sh==="tri"?"#1d2326":sh==="doc"?k[4]:"#fff"};${sh==="doc"?`border:1.5px solid ${k[4]}`:""}${sh==="pt"?";border-radius:10px":""}">${esc(k[3])}</span>`)+esc(k[2]);
     b.title=k[2];
-    b.onclick=()=>{const y=spawnY();
-     if(sh==="seg")add({ly:act,t:"seg",k:it,l:"",x:985,y:y+10,x2:1150,y2:y+10});
-     else if(sh==="arrow")add({ly:act,t:"arrow",k:it,l:"",x:985,y:y+20,x2:1150,y2:y+20});
-     else if(sh==="zone")add({ly:act,t:"zone",k:it,l:"",x:985,y,w:220,h:140});
-     else add({ly:act,t:"mk",k:it,l:"",n:"",x:990,y,w:34,h:34})}}
+    b.onclick=()=>{
+     if(sh==="seg"){const q=spawnPos(160,20);add({ly:act,t:"seg",k:it,l:"",x:q.x,y:q.y,x2:q.x+160,y2:q.y})}
+     else if(sh==="arrow"){const q=spawnPos(160,20);add({ly:act,t:"arrow",k:it,l:"",x:q.x,y:q.y,x2:q.x+160,y2:q.y})}
+     else if(sh==="zone"){const q=spawnPos(220,140);add({ly:act,t:"zone",k:it,l:"",x:q.x,y:q.y,w:220,h:140})}
+     else{const q=spawnPos(34,34);add({ly:act,t:"mk",k:it,l:"",n:"",x:q.x,y:q.y,w:34,h:34})}}}
    pz.appendChild(b)})});
 }
 $("bgup").onclick=()=>$("bgfile").click();
