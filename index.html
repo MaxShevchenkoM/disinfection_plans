@@ -137,7 +137,7 @@ body>details{margin:0 max(3vw,12px) 24px}#io{width:100%;min-height:140px;font:13
 .sub button{border:0;background:none;text-align:left;min-height:30px;font-size:13px;border-radius:4px;white-space:nowrap;display:flex;align-items:center}
 .sub button:hover{background:var(--hov)}
 .armed{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--acc);max-width:520px;line-height:1.3}
-.clin{min-height:28px;font-size:13px;border:1px solid var(--line);border-radius:4px;padding:0 6px;max-width:220px;background:var(--paper)}
+.clin{white-space:nowrap;color:var(--ink);cursor:pointer;min-height:28px;font-size:13px;border:1px solid var(--line);border-radius:4px;padding:0 6px;max-width:220px;background:var(--paper)}
 .qtyl{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute)}.qtyl input{width:70px!important;flex:none!important}
 .zpre{display:flex;align-items:flex-start;gap:6px;justify-content:space-between}.zpre .zx{min-height:24px;padding:0 6px;font-size:12px;border-color:transparent;background:none}
 .ztype .zt2{font-size:14px;font-weight:600}
@@ -200,6 +200,7 @@ button:disabled{opacity:.45;cursor:default}
 .sbh{color:var(--mute);margin-left:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .hlpd{border:1px solid var(--grid);border-radius:10px;padding:18px 22px;max-width:560px;background:var(--paper);color:var(--ink)}.hlpd::backdrop{background:rgba(0,0,0,.3)}.hlpd h3{margin:4px 0 8px;font-size:15px}.hlpd table{border-collapse:collapse;width:100%;font-size:13px}.hlpd td{padding:3px 6px;border-bottom:1px solid var(--grid)}.hlpd kbd{font:inherit;font-size:12px;background:color-mix(in srgb,var(--ink) 7%,transparent);border-radius:4px;padding:1px 6px}.hsteps{margin:0 0 10px;padding-left:20px;font-size:13px;line-height:1.5}
 #panel #rot,#panel #dup,#panel #del{display:none}
+.clinw{position:relative;display:inline-block}.clinm{position:absolute;right:0;top:calc(100% + 4px);left:auto}.clinr{font:inherit;font-size:13px;width:170px;padding:2px 6px;border:1px solid var(--acc);border-radius:4px;background:var(--paper);color:var(--ink)}
 .rbl{font-size:11px;color:var(--mute);text-align:center;padding-top:2px;white-space:nowrap}
 .rb{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;background:none;font-size:13px;min-height:32px;padding:0 8px;white-space:nowrap}
 .rb svg{flex:none;color:var(--acc)}
@@ -243,7 +244,7 @@ details.pr{border-radius:4px}
 </head>
 <body>
 <div class="top">
-<div class="titlebar"><span class="logo"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/><path d="M1.5 6h13M6 6v8.5"/></svg></span><b class="appn">План клініки</b><button type="button" class="tb ico edit" id="undo" title="Ctrl+Z"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3L2 6l3 3"/><path d="M2 6h7a4 4 0 010 8H6"/></svg></button><span id="envb"></span><span class="sp"></span><span id="save"></span><select id="clinic" class="clin" title="Клініка"></select><span id="who" class="who">Перегляд</span><button type="button" id="login" class="tb">Увійти</button><button type="button" id="logout" class="tb" hidden>Вийти</button><button type="button" class="tb ico" id="help" title="Шар угорі — що редагується; решта видно блідо. Shift+клік — додати до виділення, Shift+рамка — виділити кілька. Ctrl+A — усе на шарі, Ctrl+G — згрупувати, Ctrl+Z — назад, Esc — зняти виділення. Стіни й стрілки тягніть за кінці."><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.3 6.2a1.8 1.8 0 113 1.4c-.6.4-1.3.8-1.3 1.6M8 11.5v.2"/></svg></button></div>
+<div class="titlebar"><span class="logo"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/><path d="M1.5 6h13M6 6v8.5"/></svg></span><b class="appn">План клініки</b><button type="button" class="tb ico edit" id="undo" title="Ctrl+Z"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3L2 6l3 3"/><path d="M2 6h7a4 4 0 010 8H6"/></svg></button><span id="envb"></span><span class="sp"></span><span id="save"></span><span class="clinw"><button type="button" id="clinb" class="clin" title="Клініка · подвійний клік — перейменувати"><span id="clinn"></span> ▾</button><div id="clinm" class="cm clinm" hidden role="listbox"></div></span><span id="who" class="who">Перегляд</span><button type="button" id="login" class="tb">Увійти</button><button type="button" id="logout" class="tb" hidden>Вийти</button><button type="button" class="tb ico" id="help" title="Шар угорі — що редагується; решта видно блідо. Shift+клік — додати до виділення, Shift+рамка — виділити кілька. Ctrl+A — усе на шарі, Ctrl+G — згрупувати, Ctrl+Z — назад, Esc — зняти виділення. Стіни й стрілки тягніть за кінці."><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.3 6.2a1.8 1.8 0 113 1.4c-.6.4-1.3.8-1.3 1.6M8 11.5v.2"/></svg></button></div>
 <nav class="rtabs" id="rtabs" role="tablist"></nav>
 <div class="ribbon" id="ribbon">
 <div class="rbg" data-rt="rooms zones flows"><div class="rbc" id="tabs"></div><div class="rbl">Шари</div></div>
@@ -947,13 +948,27 @@ const docJ=()=>JSON.stringify({items:S,bg:bg.src?bg:null,pxm});async function lo
   KB.sc=sc.data||[];KB.role=Object.fromEntries((rl.data||[]).map(x=>[x.id,x.name]));KB.cls=Object.fromEntries((cl.data||[]).map(x=>[x.id,x]));KB.ok=true;fillOti();draw();if(mode==="result")result()}catch(e){console.error(e)}}
 let CLINIC=(new URLSearchParams(location.search)).get("c")||(()=>{try{return localStorage.getItem("zvir-clinic")}catch(e){}})()||"zvirpolis_1";let syncT=null,clinics=[];
 async function loadClinics(){const {data}=await sb.from("clinic").select("id,name").order("id");clinics=data||[];renderClinics()}
-function renderClinics(){const el=$("clinic");el.innerHTML=clinics.map(c=>`<option value="${esc(c.id)}"${c.id===CLINIC?" selected":""}>${esc(c.name||c.id)}</option>`).join("")+(window.__canEdit?`<option value="__new">+ Нова клініка…</option>`:"")}
-$("clinic").onchange=async e=>{const v=e.target.value;if(v==="__new"){renderClinics();const name=prompt("Назва нової клініки / філії");if(!name)return;
+function renderClinics(){const cur=clinics.find(c=>c.id===CLINIC);if($("clinn")&&!$("clinb").querySelector("input"))$("clinn").textContent=cur?(cur.name||cur.id):CLINIC;
+ const m=$("clinm");if(!m)return;m.innerHTML="";
+ for(const c of clinics){const b=document.createElement("button");b.type="button";b.className="cmi";b.dataset.id=c.id;b.innerHTML=`<span class="cmc">${c.id===CLINIC?"✓":""}</span><span class="cmt">${esc(c.name||c.id)}</span>${window.__canEdit?'<span class="cmk" title="Перейменувати">✎</span>':""}`;
+  let tm=null;b.onclick=e=>{e.stopPropagation();if(e.target.closest(".cmk")){renClinic(c.id,b.querySelector(".cmt"));return}clearTimeout(tm);tm=setTimeout(()=>{m.hidden=true;if(c.id!==CLINIC)switchClinic(c.id)},230)};
+  b.ondblclick=e=>{e.stopPropagation();clearTimeout(tm);renClinic(c.id,b.querySelector(".cmt"))};m.appendChild(b)}
+ if(window.__canEdit){const s=document.createElement("div");s.className="cms";m.appendChild(s);const b=document.createElement("button");b.type="button";b.className="cmi";b.innerHTML='<span class="cmc">+</span><span class="cmt">Нова клініка…</span>';b.onclick=e=>{e.stopPropagation();m.hidden=true;newClinic()};m.appendChild(b);
+  const h=document.createElement("div");h.className="cmh";h.style.fontWeight="400";h.textContent="Подвійний клік по назві — перейменувати";m.appendChild(h)}}
+function renClinic(id,el){if(!window.__canEdit||!el)return;const c=clinics.find(x=>x.id===id);if(!c)return;const old=c.name||c.id;
+ const inp=document.createElement("input");inp.className="clinr";inp.value=old;el.replaceChildren(inp);inp.focus();inp.select();let done=false;
+ const fin=async ok=>{if(done)return;done=true;const v=inp.value.trim();if(ok&&v&&v!==old){c.name=v;const r=await sb.from("clinic").update({name:v}).eq("id",id).select("id");if(r.error||!r.data||!r.data.length){c.name=old;alert("Не вдалося перейменувати: "+(r.error?r.error.message:"немає прав"))}}
+  inp.remove();renderClinics()};
+ inp.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){e.preventDefault();fin(true)}if(e.key==="Escape"){e.preventDefault();fin(false)}};inp.onblur=()=>fin(true);["click","dblclick","pointerdown"].forEach(t=>inp.addEventListener(t,e=>e.stopPropagation()))}
+async function newClinic(){const name=prompt("Назва нової клініки / філії");if(!name)return;
   const id=(name.toLowerCase().replace(/[^a-zа-яіїєґ0-9]+/gi,"_").replace(/^_|_$/g,"").slice(0,30)||"clinic")+"_"+Date.now().toString(36);
   const r=await sb.from("clinic").insert({id,name});if(r.error){alert(r.error.message);return}
   for(const t of ["plan_prod","plan_preprod"]){const q=await sb.from(t).insert({id,doc:{items:[]}});if(q.error){alert(q.error.message);return}}
-  await loadClinics();switchClinic(id);return}
- switchClinic(v)};
+  await loadClinics();switchClinic(id)}
+{let tm=null;$("clinb").onclick=e=>{e.stopPropagation();clearTimeout(tm);tm=setTimeout(()=>{const m=$("clinm");m.hidden=!m.hidden;if(!m.hidden){renderClinics();const f=m.querySelector(".cmi");f&&f.focus({preventScroll:true})}},window.__canEdit?230:0)};
+ $("clinb").ondblclick=e=>{e.stopPropagation();clearTimeout(tm);$("clinm").hidden=true;renClinic(CLINIC,$("clinn"))};
+ document.addEventListener("pointerdown",e=>{if(!e.target.closest(".clinw"))$("clinm").hidden=true});
+ $("clinm").addEventListener("keydown",e=>{if(e.key==="Escape"){$("clinm").hidden=true;$("clinb").focus()}})}
 async function switchClinic(id){if(dirty)await flush();CLINIC=id;try{localStorage.setItem("zvir-clinic",id)}catch(e){}renderClinics();setSel([]);await load();draw()}
 async function syncDB(){if(!window.__canEdit)return;const env=ENV.name==="prod"?"prod":"preprod";
  const zs=S.filter(o=>o.t==="zz"&&o.r.length&&o.uid);
