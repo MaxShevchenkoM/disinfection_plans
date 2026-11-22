@@ -559,7 +559,8 @@ function analyze(){const L=lines(),zs=S.filter(o=>o.t==="zz"&&o.r&&o.r.length&&!
    const pf=zprof(z);if((DIRTYK.has(l.k)&&PROTP.has(pf))||(l.k==="a_sus"&&pf==="P04")){const msg=`«${knm(l.k)}» проходить через зону «${zname(z)}» (${pf})`;marks.push({x,y,msg});(zc[z.id]=zc[z.id]||[]).push(msg)}}}}}
  for(let i=0;i<L.length;i++)for(let j=i+1;j<L.length;j++){const A=L[i],B=L[j];const bad=(DIRTYK.has(A.k)&&CLEANK.has(B.k))||(DIRTYK.has(B.k)&&CLEANK.has(A.k))||((A.k==="a_sus")!==(B.k==="a_sus"));if(!bad)continue;
   for(let a=0;a<A.pts.length-1;a++)for(let b=0;b<B.pts.length-1;b++){const x=segX(A.pts[a],A.pts[a+1],B.pts[b],B.pts[b+1]);if(x){const msg=`Перетин: «${knm(A.k)}» і «${knm(B.k)}»`;marks.push({x:x[0],y:x[1],msg});zs.filter(z=>inR(x[0],x[1],z)).forEach(z=>(zc[z.id]=zc[z.id]||[]).push(msg+" у зоні"))}}}
- return {marks,through,zc}}
+ const sk=new Set(),um=marks.filter(m=>{const k=Math.round(m.x/6)+","+Math.round(m.y/6)+m.msg;if(sk.has(k))return false;sk.add(k);return true});for(const k in zc)zc[k]=[...new Set(zc[k])];
+ return {marks:um,through,zc}}
 function zoneEval(z){
  const col=zcol(z),objs=S.filter(o=>LY(o)==="eq"&&!isHid(o)&&inZ(o,z)),types=new Set(objs.map(otiOf).filter(Boolean)),acts=zacts(z),lts=zltypes(z);
  const cols=new Set(z.co?[z.co]:[...lts].map(t=>(KB.ztm[t]||{}).color).filter(Boolean));
