@@ -769,7 +769,7 @@ $("ungrp").onclick=()=>{push();selObjs().forEach(o=>{delete o.gid;delete o.gn});
 $("sla").onclick=()=>{show[act]=true;setSel(S.filter(o=>LY(o)===act&&!isHid(o)&&!isLk(o)).map(o=>o.id));draw()};
 $("saa").onclick=()=>{setSel(S.filter(o=>show[LY(o)]&&!isHid(o)&&!isLk(o)).map(o=>o.id));draw()};
 document.addEventListener("keydown",e=>{
- if(!window.__canEdit||e.target.matches("input,textarea,select"))return;
+ if(!window.__canEdit||(e.target.matches&&e.target.matches("input,textarea,select")))return;
  if((e.key==="Delete"||e.key==="Backspace")&&SEL.size){e.preventDefault();$("del").onclick()}
  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){e.preventDefault();$("undo").onclick()}
  const k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey;
