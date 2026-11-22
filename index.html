@@ -201,6 +201,19 @@ button:disabled{opacity:.45;cursor:default}
 .hlpd{border:1px solid var(--grid);border-radius:10px;padding:18px 22px;max-width:560px;background:var(--paper);color:var(--ink)}.hlpd::backdrop{background:rgba(0,0,0,.3)}.hlpd h3{margin:4px 0 8px;font-size:15px}.hlpd table{border-collapse:collapse;width:100%;font-size:13px}.hlpd td{padding:3px 6px;border-bottom:1px solid var(--grid)}.hlpd kbd{font:inherit;font-size:12px;background:color-mix(in srgb,var(--ink) 7%,transparent);border-radius:4px;padding:1px 6px}.hsteps{margin:0 0 10px;padding-left:20px;font-size:13px;line-height:1.5}
 #panel #rot,#panel #dup,#panel #del{display:none}
 .clinw{position:relative;display:inline-block}.clinm{position:absolute;right:0;top:calc(100% + 4px);left:auto}.clinr{font:inherit;font-size:13px;width:170px;padding:2px 6px;border:1px solid var(--acc);border-radius:4px;background:var(--paper);color:var(--ink)}
+
+#mobx{display:none}
+body.mob .titlebar{gap:6px;padding:0 6px;height:44px}body.mob .appn,body.mob #save,body.mob #who,body.mob .logo{display:none}
+body.mob #envb{font-size:10px;max-width:64px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}body.mob .clin{max-width:150px;overflow:hidden;text-overflow:ellipsis;min-height:34px}
+body.mob .rtabs{overflow-x:auto;scrollbar-width:none;padding:0 4px;height:40px}body.mob .rtabs::-webkit-scrollbar{display:none}body.mob .rtabs>*{flex:none;white-space:nowrap}
+body.mob .ribbon{flex-wrap:nowrap;overflow-x:auto;min-height:0;padding:4px;scrollbar-width:thin}body.mob .rbl{display:none}body.mob .rbg{padding:0 6px}body.mob .rb{min-height:36px}
+body.mob .work{display:flex!important;flex-direction:column;align-items:stretch;padding:6px;gap:8px}body.mob .wrap{width:100%;height:58vh;height:58dvh;border:1px solid var(--grid);border-radius:6px;background:var(--paper)}
+body.mob .tree{position:static;max-height:none;width:auto;min-width:0}body.mob .wrap{min-width:0}body.mob #cv{touch-action:none}
+body.mob .sbar>span:not(#sbhint){display:none}body.mob .sbh{margin-left:0;font-size:11px}
+body.mob .cm .cmi{min-height:40px;font-size:14px}body.mob .ftb button{min-width:36px;height:36px}body.mob .ztm,body.mob .menu{max-width:92vw}
+body.mob #result{padding:10px}body.mobsim #mobx{display:inline-flex}
+body.mobsim{max-width:390px;margin:0 auto;min-height:100vh;box-shadow:0 0 0 1px var(--grid),0 0 40px rgba(0,0,0,.15);background:var(--bg)}html:has(body.mobsim){background:light-dark(#dfe3e6,#111)}
+body.mobsim .sbar{left:50%;right:auto;width:390px;transform:translateX(-50%)}body.mobsim .wrap{height:520px}
 .rbl{font-size:11px;color:var(--mute);text-align:center;padding-top:2px;white-space:nowrap}
 .rb{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;background:none;font-size:13px;min-height:32px;padding:0 8px;white-space:nowrap}
 .rb svg{flex:none;color:var(--acc)}
@@ -244,7 +257,7 @@ details.pr{border-radius:4px}
 </head>
 <body>
 <div class="top">
-<div class="titlebar"><span class="logo"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/><path d="M1.5 6h13M6 6v8.5"/></svg></span><b class="appn">План клініки</b><button type="button" class="tb ico edit" id="undo" title="Ctrl+Z"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3L2 6l3 3"/><path d="M2 6h7a4 4 0 010 8H6"/></svg></button><span id="envb"></span><span class="sp"></span><span id="save"></span><span class="clinw"><button type="button" id="clinb" class="clin" title="Клініка · подвійний клік — перейменувати"><span id="clinn"></span> ▾</button><div id="clinm" class="cm clinm" hidden role="listbox"></div></span><span id="who" class="who">Перегляд</span><button type="button" id="login" class="tb">Увійти</button><button type="button" id="logout" class="tb" hidden>Вийти</button><button type="button" class="tb ico" id="help" title="Шар угорі — що редагується; решта видно блідо. Shift+клік — додати до виділення, Shift+рамка — виділити кілька. Ctrl+A — усе на шарі, Ctrl+G — згрупувати, Ctrl+Z — назад, Esc — зняти виділення. Стіни й стрілки тягніть за кінці."><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.3 6.2a1.8 1.8 0 113 1.4c-.6.4-1.3.8-1.3 1.6M8 11.5v.2"/></svg></button></div>
+<div class="titlebar"><span class="logo"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/><path d="M1.5 6h13M6 6v8.5"/></svg></span><b class="appn">План клініки</b><button type="button" class="tb ico edit" id="undo" title="Ctrl+Z"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3L2 6l3 3"/><path d="M2 6h7a4 4 0 010 8H6"/></svg></button><span id="envb"></span><span class="sp"></span><span id="save"></span><span class="clinw"><button type="button" id="clinb" class="clin" title="Клініка · подвійний клік — перейменувати"><span id="clinn"></span> ▾</button><div id="clinm" class="cm clinm" hidden role="listbox"></div></span><span id="who" class="who">Перегляд</span><button type="button" id="login" class="tb">Увійти</button><button type="button" id="logout" class="tb" hidden>Вийти</button><button type="button" class="tb ico mobx" id="mobx" title="Вийти з мобільного вигляду"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="2.5" width="13" height="9" rx="1"/><path d="M5.5 14h5M8 11.5V14"/></svg></button><button type="button" class="tb ico" id="help" title="Шар угорі — що редагується; решта видно блідо. Shift+клік — додати до виділення, Shift+рамка — виділити кілька. Ctrl+A — усе на шарі, Ctrl+G — згрупувати, Ctrl+Z — назад, Esc — зняти виділення. Стіни й стрілки тягніть за кінці."><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.3 6.2a1.8 1.8 0 113 1.4c-.6.4-1.3.8-1.3 1.6M8 11.5v.2"/></svg></button></div>
 <nav class="rtabs" id="rtabs" role="tablist"></nav>
 <div class="ribbon" id="ribbon">
 <div class="rbg" data-rt="rooms zones flows"><div class="rbc" id="tabs"></div><div class="rbl">Шари</div></div>
@@ -257,6 +270,7 @@ details.pr{border-radius:4px}
 <div class="rbg edit" data-rt="view"><div class="rbc"><button type="button" class="rb" id="snap"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h12M2 11h12M5 2v12M11 2v12"/></svg><span>Прив’язка до сітки</span></button></div><div class="rbl">Сітка</div></div>
 <div class="rbg edit" data-rt="view"><div class="rbc"><button type="button" class="rb" id="bgup"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><circle cx="6" cy="6.5" r="1.2"/><path d="M14 11l-4-4-6 6"/></svg><span>Свій план (фото)</span></button><button type="button" class="rb" id="bgmove"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1v14M1 8h14M8 1L6 3M8 1l2 2M8 15l-2-2M8 15l2-2M1 8l2-2M1 8l2 2M15 8l-2-2M15 8l-2 2"/></svg><span>Рухати фон</span></button><button type="button" class="rb" id="bgdef"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>Прибрати фото</span></button><label class="rng">Прозорість<input id="bgop" type="range" min="0.2" max="1" step="0.05" value="0.9"></label><input type="file" id="bgfile" accept="image/*" hidden></div><div class="rbl">Фон</div></div>
 <div class="rbg edit" data-rt="view"><div class="rbc"><label class="rng" title="Скільки пікселів плану в 1 метрі — для радіусів бризок і аерозолю">1 м =<input id="pxm" type="number" min="5" max="400" step="1" value="50" style="width:58px"> px</label><button type="button" class="rb" id="calb" title="Клікніть дві точки на плані і введіть відстань у метрах"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 12L12 2l2 2L4 14z"/><path d="M5 9l1.5 1.5M7 7l1 1M9 5l1.5 1.5"/></svg><span>Виміряти відрізок</span></button></div><div class="rbl">Масштаб плану</div></div>
+<div class="rbg" data-rt="view"><div class="rbc"><button type="button" class="rb" id="mobt" aria-pressed="false" title="Показати інтерфейс у розмірі телефона (390×844)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="1.5" width="8" height="13" rx="1.5"/><path d="M7 12.5h2"/></svg><span>Мобільний вигляд</span></button></div><div class="rbl">Екран</div></div>
 <div class="rbg edit" data-rt="file"><div class="rbc"><button type="button" class="rb" id="fsave"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h8l2 2v9a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M5 2v4h5V2M5 14v-4h6v4"/></svg><span>Зберегти файлом</span></button><button type="button" class="rb" id="fopen"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4.5V12a1 1 0 001 1h10a1 1 0 001-1V6a1 1 0 00-1-1H8L6.5 3H3a1 1 0 00-1 1.5z"/></svg><span>Відкрити файл</span></button><input type="file" id="ffile" accept=".json,application/json" hidden></div><div class="rbl">Файл плану</div></div>
 <div class="rbg edit" data-rt="file"><div class="rbc"><button type="button" class="rb" id="cp"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V3a1 1 0 011-1h7"/></svg><span>Копіювати JSON</span></button><button type="button" class="rb" id="ld"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="10" height="11" rx="1.5"/><path d="M6 3V2h4v1"/></svg><span>Застосувати JSON</span></button><textarea id="io" title="JSON плану без фото — для надсилання"></textarea></div><div class="rbl">Для розробника</div></div>
 <div class="rbg edit" data-rt="file"><div class="rbc"><button type="button" class="rb" id="copyprod" hidden><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h7a3 3 0 00.3-6A4 4 0 004 7a2.5 2.5 0 00.5 5z"/></svg><span>З проду в препрод</span></button><button type="button" class="rb" id="rs"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h10M5 10l6-6 2 2-6 6H5z"/></svg><span>Очистити все</span></button></div><div class="rbl">Дані</div></div>
@@ -501,6 +515,9 @@ function draw(){
  }
  if(!(drag&&drag.moved))for(const o of badges){const m=MAT[o.m],t=m?m[1]:"Матеріал?",w=t.length*7.4+30,x=o.x+o.w/2-w/2,y=o.y-34;
   g+=`<g data-mat="${o.id}" style="cursor:pointer"><rect x="${x}" y="${y}" width="${w}" height="24" rx="12" fill="${m?m[3]:"var(--paper)"}" stroke="${m?m[3]:"var(--mute)"}" stroke-width="1.5"/><text x="${x+12}" y="${y+12.5}" dominant-baseline="central" font-size="13" font-weight="600" fill="${m?"#fff":"var(--mute)"}">${t}</text><text x="${x+w-13}" y="${y+12.5}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="${m?"#fff":"var(--mute)"}">⟳</text></g>`}
+ if(drag&&drag.wall){const a=drag.wall.a,c=drag.cur||a,k=K[drag.wall.k]||K.w_wall,d=Math.hypot(c[0]-a[0],c[1]-a[1]);
+  g+=`<g pointer-events="none"><line x1="${a[0]}" y1="${a[1]}" x2="${c[0]}" y2="${c[1]}" stroke="${k[4]}" stroke-width="${k[6]||5}" stroke-opacity=".6" stroke-linecap="square" ${k[5]?`stroke-dasharray="${k[5]}"`:""}/><circle cx="${a[0]}" cy="${a[1]}" r="5" fill="#e8590c"/><circle cx="${c[0]}" cy="${c[1]}" r="5" fill="#fff" stroke="#e8590c" stroke-width="2"/>${d>4?halo((a[0]+c[0])/2,(a[1]+c[1])/2-12,(d/pxm).toFixed(2)+" м",13,"middle","#e8590c"):""}</g>`}
+ {const so=SEL.size===1&&S.find(x=>x.id===sel);if(so&&so.t==="seg"&&!(drag&&drag.wall)){const d=Math.hypot(so.x2-so.x,so.y2-so.y);g+=`<g pointer-events="none">${halo((so.x+so.x2)/2,(so.y+so.y2)/2-14,(d/pxm).toFixed(2)+" м",12,"middle","#e8590c")}</g>`}}
  if(drag&&drag.poly){const pp=[...drag.poly.pts];if(drag.cur)pp.push(drag.cur);const k=K[drag.poly.k]||K.a_pat;g+=pp.length>1?`<g opacity=".75" pointer-events="none">${plPath(pp,k)}</g>`:"";g+=drag.poly.pts.map(q=>`<circle cx="${q[0]}" cy="${q[1]}" r="5" fill="${k[4]}" pointer-events="none"/>`).join("")}
  if(anl){const A=analyze();g+=A.marks.map(m=>`<g><title>${esc(m.msg)}</title><circle cx="${m.x}" cy="${m.y}" r="12" fill="${m.sev==="med"?"#d68910":"#c0392b"}" stroke="#fff" stroke-width="2"/><text x="${m.x}" y="${m.y}" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#fff">!</text></g>`).join("")}
  if(drag&&drag.newz){const n=drag.newz,x=Math.min(n.x0,n.x1),y=Math.min(n.y0,n.y1);g+=`<rect x="${x}" y="${y}" width="${Math.abs(n.x1-n.x0)}" height="${Math.abs(n.y1-n.y0)}" fill="#7d3c98" fill-opacity=".1" stroke="#7d3c98" stroke-width="2" stroke-dasharray="6 4" pointer-events="none"/>`}
@@ -750,6 +767,9 @@ function pt(e){const m=cv.getScreenCTM().inverse(),q=cv.createSVGPoint();q.x=e.c
 cv.addEventListener("pointerdown",e=>{
  if(!window.__canEdit||e.button===2)return;
  const mb=e.target.closest("[data-mat]");if(mb){e.preventDefault();const o=S.find(x=>x.id===+mb.dataset.mat);if(o){push();const order=["",...MATS.map(m=>m[0])],i=order.indexOf(o.m||"");const nx=order[(i+1)%order.length];if(nx)o.m=nx;else delete o.m;draw();save()}return}
+ if(armK&&act==="wall"&&K[armK]&&K[armK][1]==="seg"&&!bgMode){const p=pt(e),q=wallSnap([p.x,p.y],drag&&drag.wall?drag.wall.a:null,e.shiftKey);
+  if(drag&&drag.wall){const a=drag.wall.a;if(Math.hypot(q[0]-a[0],q[1]-a[1])>4){push();const o={ly:"wall",t:"seg",k:drag.wall.k,l:"",x:a[0],y:a[1],x2:q[0],y2:q[1],uid:uidv(),id:nid()};S.push(o);drag.wall.n++;drag.wall.a=q;save()}}
+  else{setSel([]);drag={wall:{k:armK,a:q,n:0},cur:q,moved:false}}draw();e.preventDefault();return}
  if(armK&&act==="flow"&&!bgMode){const p=pt(e);let q=[sn(p.x),sn(p.y)];
   if(drag&&drag.poly){const l=drag.poly.pts.at(-1);if(e.shiftKey){if(Math.abs(q[0]-l[0])<Math.abs(q[1]-l[1]))q[0]=l[0];else q[1]=l[1]}if(Math.hypot(l[0]-q[0],l[1]-q[1])>4)drag.poly.pts.push(q)}
   else{setSel([]);drag={poly:{k:armK,pts:[q]},cur:q,moved:false}}draw();e.preventDefault();return}
@@ -771,6 +791,7 @@ cv.addEventListener("pointerdown",e=>{
 });
 cv.addEventListener("pointermove",e=>{
  if(!drag)return;const p=pt(e),o=drag.o;
+ if(drag.wall){drag.cur=wallSnap([p.x,p.y],drag.wall.a,e.shiftKey);draw();return}
  if(drag.poly){let q=[sn(p.x),sn(p.y)];const l=drag.poly.pts.at(-1);if(e.shiftKey){if(Math.abs(q[0]-l[0])<Math.abs(q[1]-l[1]))q[0]=l[0];else q[1]=l[1]}drag.cur=q;draw();return}
  drag.moved=true;
  if(drag.pvi!=null){const pts=absP(o);pts[drag.pvi]=[sn(p.x),sn(p.y)];setPts(o,pts);draw();return}
@@ -793,15 +814,22 @@ cv.addEventListener("pointermove",e=>{
  if(drag.zsnap)zClip(drag.zmoved,drag.zsnap);
  draw();
 });
-const endDrag=e=>{if(drag&&drag.poly)return;if(drag&&drag.newz){const n=drag.newz,x=Math.min(n.x0,n.x1),y=Math.min(n.y0,n.y1),w=Math.abs(n.x1-n.x0),h=Math.abs(n.y1-n.y0),to=drag.addTo;drag=null;
+const endDrag=e=>{if(drag&&(drag.poly||drag.wall))return;if(drag&&drag.newz){const n=drag.newz,x=Math.min(n.x0,n.x1),y=Math.min(n.y0,n.y1),w=Math.abs(n.x1-n.x0),h=Math.abs(n.y1-n.y0),to=drag.addTo;drag=null;
   if(w>=20&&h>=20){push();if(to){const rs=absR(to);rs.push({x,y,w,h});setAbs(to,rs);if(to.t==="zz")zClip([to]);zClean();setSel([to.id]);draw();save()}
    else if(act==="route"){const z={ly:"route",t:"rz",rk:"",uid:uidv(),l:"",x,y,w,h,r:[[0,0,w,h]],id:nid()};S.push(z);setSel([z.id]);draw();save();rkMenu(z)}
    else{const z={ly:"zone",t:"zz",uid:uidv(),nm:"",x,y,w,h,r:[[0,0,w,h]],id:nid()};S.push(z);zClip([z]);zClean();setSel([z.id]);draw();save();ztMenu(z)}}else draw();return}
  if(drag&&drag.zsnap){zClean()}
  if(drag){if(!drag.bg&&!drag.lasso&&!drag.moved)hist.pop();const l=drag.lasso;if(drag.moved&&drag.o)remember(drag.o);drag=null;if(l)draw();else save()}};
 cv.addEventListener("pointerup",endDrag);cv.addEventListener("pointercancel",endDrag);
+function wallSnap(q,from,shift){let [x,y]=q;const R=12;let best=null,bd=R;
+ for(const o of S)if(o.t==="seg"&&!o.hid)for(const e of [[o.x,o.y],[o.x2,o.y2]]){const d=Math.hypot(e[0]-x,e[1]-y);if(d<bd){bd=d;best=e}}
+ if(best)return [best[0],best[1]];
+ if(from){const dx=x-from[0],dy=y-from[1],L=Math.hypot(dx,dy);if(L>4){const ang=Math.atan2(dy,dx),step=shift?Math.PI/2:Math.PI/4,sa=Math.round(ang/step)*step;
+  if(shift||Math.abs(ang-sa)<0.14){x=from[0]+Math.cos(sa)*L;y=from[1]+Math.sin(sa)*L}}
+  for(const o of S)if(o.t==="seg"&&!o.hid)for(const e of [[o.x,o.y],[o.x2,o.y2]]){if(Math.abs(e[0]-x)<8)x=e[0];if(Math.abs(e[1]-y)<8)y=e[1]}}
+ return [Math.round(snap?sn(x):x),Math.round(snap?sn(y):y)]}
 function finishPoly(){const pp=drag.poly.pts.filter((q,i,a)=>!i||Math.hypot(q[0]-a[i-1][0],q[1]-a[i-1][1])>4),k=drag.poly.k;drag=null;armK=null;presets();if(pp.length<2){draw();return}push();const o={ly:"flow",t:"pl",k,l:"",uid:uidv(),id:nid()};setPts(o,pp);S.push(o);remember(o);setSel([o.id]);draw();save()}
-cv.addEventListener("dblclick",e=>{if(!window.__canEdit)return;if(drag&&drag.poly){e.preventDefault();finishPoly();return}const g=e.target.closest("[data-id]");if(g){setSel([+g.dataset.id]);draw();$("lbl").focus();$("lbl").select()}});
+cv.addEventListener("dblclick",e=>{if(!window.__canEdit)return;if(drag&&drag.wall){e.preventDefault();drag=null;draw();return}if(drag&&drag.poly){e.preventDefault();finishPoly();return}const g=e.target.closest("[data-id]");if(g){setSel([+g.dataset.id]);draw();$("lbl").focus();$("lbl").select()}});
 for(const f of ["lbl","note"])$(f).addEventListener("focus",()=>push());
 $("lbl").addEventListener("input",e=>{const o=S.find(x=>x.id===sel);if(o){o.l=e.target.value;draw();save()}});
 $("note").addEventListener("input",e=>{const o=S.find(x=>x.id===sel);if(o){o.n=e.target.value;list();save()}});
@@ -831,7 +859,8 @@ document.addEventListener("keydown",e=>{
  const k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey;
  if(mod&&k==="a"){e.preventDefault();(e.shiftKey?$("saa"):$("sla")).onclick();return}
  if(mod&&k==="g"){e.preventDefault();(e.shiftKey?$("ungrp"):$("grp")).onclick();return}
- if(e.key==="Escape"){if(drag&&drag.poly){drag=null}armK=null;calib=null;presets();setSel([]);draw();return}
+ if(e.key==="Escape"){if(drag&&drag.wall){drag=null;draw();return}if(drag&&drag.poly){drag=null}armK=null;calib=null;presets();setSel([]);draw();return}
+ if(e.key==="Enter"&&drag&&drag.wall){drag=null;draw();return}
  if(e.key==="Enter"&&drag&&drag.poly){finishPoly();return}
  if(SEL.size&&e.key.startsWith("Arrow")){e.preventDefault();push();const st=snap?GS:e.shiftKey?10:2;
   const dx=e.key==="ArrowLeft"?-st:e.key==="ArrowRight"?st:0,dy=e.key==="ArrowUp"?-st:e.key==="ArrowDown"?st:0;
@@ -897,7 +926,7 @@ function presets(){
    else{const k=K[it],sh=k[1];
     b.innerHTML=(sh==="seg"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="2" y1="6" x2="24" y2="6" stroke="${k[4]}" stroke-width="${Math.min(6,k[6])}" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/></svg>`:sh==="arrow"?`<svg width="26" height="12" style="margin-right:6px;vertical-align:-1px"><line x1="1" y1="6" x2="17" y2="6" stroke="${k[4]}" stroke-width="3" ${k[5]?`stroke-dasharray="${k[5].split(" ").map(v=>v/2).join(" ")}"`:""}/><polygon points="25,6 16,1 16,11" fill="${k[4]}"/></svg>`:sh==="zone"?`<span class="sw" style="background:${k[4]}33;border:2px dashed ${k[4]}"></span>`:`<span class="ic" style="background:${sh==="tri"?"#ffd34d":sh==="doc"?"transparent":k[4]};color:${sh==="tri"?"#1d2326":sh==="doc"?k[4]:"#fff"};${sh==="doc"?`border:1.5px solid ${k[4]}`:""}${sh==="pt"?";border-radius:10px":""}">${esc(k[3])}</span>`)+esc(k[2]);
     b.onclick=()=>{
-     if(sh==="seg"){const q=spawnPos(160,20);add({ly:act,t:"seg",k:it,l:"",x:q.x,y:q.y,x2:q.x+160,y2:q.y})}
+     if(sh==="seg"){armK=armK===it?null:it;if(drag&&drag.wall)drag=null;setSel([]);presets();draw();return}
      else if(sh==="arrow"){armK=armK===it?null:it;if(drag&&drag.poly)drag=null;presets();draw();return}
      else if(sh==="zone"){const q=spawnPos(220,140);add({ly:act,t:"zone",k:it,l:"",x:q.x,y:q.y,w:220,h:140})}
      else{const q=spawnPos(34,34);add({ly:act,t:"mk",k:it,l:"",n:"",x:q.x,y:q.y,w:34,h:34})}}}
@@ -932,7 +961,7 @@ $("cp").onclick=()=>{try{navigator.clipboard.writeText($("io").value).then(()=>{
 $("ld").onclick=()=>{try{const v=JSON.parse($("io").value);if(Array.isArray(v)){push();S=v;setSel([]);draw();save()}}catch(e){flash($("ld"),"Помилка в тексті")}};
 $("rs").onclick=()=>{if(!confirm("Очистити план? Усі елементи буде видалено."))return;push();S=fresh();setSel([]);draw();save()};
 if(!GROUPS[act])act="eq";
-if(innerWidth<700)zoom=2;
+
 presets();draw();
 /* ---- база даних ---- */
 const ENV=window.PLAN_ENV||{name:"prod",table:"plan_prod"},SB_URL="https://yyqlldeadajhhcwvjocj.supabase.co",SB_KEY="sb_publishable_Wz4vFrtTpOTF7APubvBolg_8dqdvR-f";
@@ -1021,7 +1050,7 @@ function recentFor(a){return RECENT.map(x=>{try{return JSON.parse(x)}catch(e){re
 function insertItem(it,pos){const at=(w,h)=>pos?{x:sn(Math.max(0,Math.min(1260-w,pos.x-w/2))),y:sn(Math.max(0,Math.min(1280-h,pos.y-h/2)))}:spawnPos(w,h);
  if(Array.isArray(it)){const [lab,t,w,h]=it,q=at(w,h);addRecent(it);add({t,ot:lab,oti:it[4]||LBL2OT[lab.toLowerCase()]||null,l:(lab==="Двері"||t==="water"&&lab==="Точка води")?"":lab.toLowerCase(),x:q.x,y:q.y,w,h});return}
  const k=K[it];if(!k)return;const sh=k[1],ly=k[0];addRecent(it);
- if(sh==="seg"){const q=at(160,20);add({ly,t:"seg",k:it,l:"",x:q.x,y:q.y+10,x2:q.x+160,y2:q.y+10})}
+ if(sh==="seg"){act=ly;armK=it;setSel([]);if(pos){const q=wallSnap([pos.x,pos.y],null,false);drag={wall:{k:it,a:q,n:0},cur:q,moved:false}}presets();draw()}
  else if(sh==="arrow"){act=ly;armK=it;if(drag&&drag.poly)drag=null;presets();draw()}
  else if(sh==="zone"){const q=at(220,140);add({ly,t:"zone",k:it,l:"",x:q.x,y:q.y,w:220,h:140})}
  else{const q=at(34,34);add({ly,t:"mk",k:it,l:"",n:"",x:q.x,y:q.y,w:34,h:34})}}
@@ -1076,7 +1105,7 @@ function renderCM(box,L,x,y){box.innerHTML="";box.hidden=false;
  for(const it of L){if(it.sep){const s=document.createElement("div");s.className="cms";box.appendChild(s);continue}
   if(it.head){const h=document.createElement("div");h.className="cmh";h.innerHTML=it.head;box.appendChild(h);continue}
   const b=document.createElement("button");b.type="button";b.className="cmi"+(it.danger?" dng":"");b.disabled=!!it.dis;b.setAttribute("role","menuitem");
-  b.innerHTML=`<span class="cmc">${it.on?"✓":it.sw?`<span class="sw" style="background:${it.sw};border-color:${it.sw}"></span>`:""}</span><span class="cmt">${esc(it.t)}${it.hint?` <span class="hint">${esc(it.hint)}</span>`:""}</span><span class="cmk">${it.sub?"▸":esc(it.k||"")}</span>`;
+  b.innerHTML=`<span class="cmc">${it.on?"✓":it.sw?`<span class="sw" style="background:${it.sw};border-color:${it.sw}"></span>`:""}</span><span class="cmt">${esc(it.t)}${it.hint?` <span class="hint">${esc(it.hint)}</span>`:""}</span><span class="cmk">${it.sub?"▸":document.body.classList.contains("mob")?"":esc(it.k||"")}</span>`;
   if(it.sub){const sm=document.createElement("div");sm.className="cm sub";sm.hidden=true;b.appendChild(sm);
    const open=()=>{box.querySelectorAll(":scope > .cmi > .cm.sub").forEach(x=>{if(x!==sm)x.hidden=true});if(!sm.hidden)return;renderCM(sm,it.sub,0,0);const r=b.getBoundingClientRect();sm.style.left=(r.right+sm.offsetWidth>innerWidth?r.left-sm.offsetWidth:r.right-2)+"px";sm.style.top=Math.max(8,Math.min(r.top-4,innerHeight-sm.offsetHeight-8))+"px"};
    b.onmouseenter=open;b.onclick=e=>{e.stopPropagation();if(e.target.closest(".cm.sub")!==null&&e.target.closest(".cm.sub")!==box)return;open()}}
@@ -1086,7 +1115,7 @@ function renderCM(box,L,x,y){box.innerHTML="";box.hidden=false;
  if(box===CM){box.style.left=Math.max(8,Math.min(x,innerWidth-box.offsetWidth-8))+"px";box.style.top=Math.max(8,Math.min(y,innerHeight-box.offsetHeight-8))+"px";const f=box.querySelector(".cmi:not(:disabled)");if(f)f.focus({preventScroll:true})}}
 function hideCM(){if(!CM)return;CM.hidden=true;CM.innerHTML=""}
 function openCM(x,y,kind,p){if(!window.__canEdit||mode==="result")return;document.querySelectorAll(".menu").forEach(m=>m.hidden=true);$("ztm").hidden=true;renderCM(CM,kind==="obj"?objMenu():canvasMenu(p),x,y)}
-cv.addEventListener("contextmenu",e=>{if(!window.__canEdit||bgMode)return;e.preventDefault();if(drag&&drag.poly){finishPoly();return}
+cv.addEventListener("contextmenu",e=>{if(!window.__canEdit||bgMode)return;e.preventDefault();if(drag&&drag.wall){drag=null;draw();return}if(drag&&drag.poly){finishPoly();return}
  const g=e.target.closest("[data-id]"),p=pt(e);cmPos=p;
  if(g){const id=+g.dataset.id;if(!SEL.has(id)){setSel(grpOf(id));draw()}openCM(e.clientX,e.clientY,"obj",p)}
  else{if(SEL.size){setSel([]);draw()}openCM(e.clientX,e.clientY,"canvas",p)}});
@@ -1145,6 +1174,8 @@ function sbHint(){const el=$("sbhint");if(!el)return;let t="";
  if(!window.__canEdit)t="Перегляд. Щоб редагувати — «Увійти».";
  else if(calib)t=calib.pts.length?"Клікніть другу точку відрізка.":"Масштаб: клікніть першу точку відрізка відомої довжини (Esc — скасувати).";
  else if(mode==="result")t="";
+ else if(document.body.classList.contains("mob")&&!armK)t=SEL.size?"Тягніть, щоб пересунути · довге натискання — усі дії":(act==="zone"||act==="route")?"Тягніть пальцем по порожньому місцю — нова "+(act==="zone"?"зона":"ділянка")+" · двома пальцями — рух і масштаб · довге натискання — меню":"Двома пальцями або по порожньому — рух плану · довге натискання — «Додати сюди»";
+ else if(armK&&K[armK]&&K[armK][1]==="seg")t=(drag&&drag.wall?"Клікайте наступний кут · подвійний клік, Enter або правий клік — закінчити":"Клікніть початок стіни")+" · кути вирівнюються самі, Shift — лише прямі · кінці липнуть до інших стін · Esc — вийти";
  else if(armK)t="Клікайте точки руху · подвійний клік або Enter — кінець · Shift — прямий кут · Esc — скасувати";
  else if(SEL.size)t="Тягніть, щоб пересунути · стрілки — зсув · правий клік — усі дії · Del — видалити";
  else if(act==="zone")t="Тягніть по порожньому місцю — нова зона · Shift+тягнути — додати прямокутник до виділеної · правий клік — меню";
@@ -1160,6 +1191,33 @@ function showHelp(){let d=$("hlpd");if(!d){d=document.createElement("dialog");d.
 $("help").onclick=showHelp;$("help").title="Довідка і клавіші (?)";
 
 $("hzt").onclick=toggleHz;$("hzt").setAttribute("aria-pressed",showHz);$("calb").onclick=startCalib;
+
+// ===== Мобільний вигляд =====
+const MQ=matchMedia("(max-width:760px)");
+function applyMob(){let sim=false;try{sim=localStorage.getItem("zvir-mobsim")==="1"}catch(e){}if(/[?&]mobile=1/.test(location.search))sim=true;
+ const on=sim||MQ.matches,was=document.body.classList.contains("mob");document.body.classList.toggle("mob",on);document.body.classList.toggle("mobsim",sim&&!MQ.matches);
+ $("mobt").setAttribute("aria-pressed",sim);if(on&&!was&&zoom<2)zoom=2;if(!on&&was&&zoom===2)zoom=1;hideCM();draw()}
+function setMobSim(v){try{localStorage.setItem("zvir-mobsim",v?"1":"0")}catch(e){}if(!v&&/[?&]mobile=1/.test(location.search))history.replaceState(null,"",location.pathname);applyMob()}
+$("mobt").onclick=()=>setMobSim(!document.body.classList.contains("mobsim"));$("mobx").onclick=()=>setMobSim(false);
+MQ.addEventListener("change",applyMob);applyMob();
+// Дотик: довге натискання — меню; два пальці — пересунути і масштабувати; один палець по порожньому — пересунути план
+{const P=new Map();let lp=null,pan=null,pinch=null;const W=$("wrap");
+ const isMob=()=>document.body.classList.contains("mob");
+ cv.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch")return;P.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY});
+  if(P.size===2){clearTimeout(lp);lp=null;if(drag&&!drag.poly&&!drag.wall){if(drag.moved&&hist.length)$("undo").onclick();drag=null}pan=null;const [a,b]=[...P.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:zoom,cx:(a.x+b.x)/2,cy:(a.y+b.y)/2,sl:W.scrollLeft,st:W.scrollTop};e.stopImmediatePropagation();e.preventDefault();return}
+  const onObj=e.target.closest("[data-id],[data-pv],[data-zr],[data-rz]");
+  if(window.__canEdit){lp=setTimeout(()=>{lp=null;if(P.size!==1||!CM.hidden)return;if(drag&&drag.moved)return;if(drag&&!drag.poly&&!drag.wall)drag=null;
+   const tg=document.elementFromPoint(e.clientX,e.clientY);(tg&&cv.contains(tg)?tg:cv).dispatchEvent(new MouseEvent("contextmenu",{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY}))},550)}
+  if(isMob()&&!onObj&&!armK&&!calib&&(!window.__canEdit||!["zone","route"].includes(act)||bgMode)){pan={x:e.clientX,y:e.clientY,sl:W.scrollLeft,st:W.scrollTop};e.stopImmediatePropagation();e.preventDefault()}},true);
+ cv.addEventListener("pointermove",e=>{if(e.pointerType!=="touch"||!P.has(e.pointerId))return;const q=P.get(e.pointerId);q.x=e.clientX;q.y=e.clientY;
+  if(lp&&Math.hypot(e.clientX-q.x0,e.clientY-q.y0)>8){clearTimeout(lp);lp=null}
+  if(pinch&&P.size>=2){const [a,b]=[...P.values()],d=Math.hypot(a.x-b.x,a.y-b.y),nz=Math.max(.5,Math.min(4,pinch.z*d/pinch.d)),cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
+   if(Math.abs(nz-zoom)>.01){const r=W.getBoundingClientRect(),fx=(pinch.cx-r.left+pinch.sl)/pinch.z,fy=(pinch.cy-r.top+pinch.st)/pinch.z;zoom=nz;draw();W.scrollLeft=fx*nz-(cx-r.left);W.scrollTop=fy*nz-(cy-r.top)}
+   else{W.scrollLeft=pinch.sl-(cx-pinch.cx);W.scrollTop=pinch.st-(cy-pinch.cy)}e.stopImmediatePropagation();e.preventDefault();return}
+  if(pan){W.scrollLeft=pan.sl-(e.clientX-pan.x);W.scrollTop=pan.st-(e.clientY-pan.y);e.stopImmediatePropagation();e.preventDefault()}},true);
+ const up=e=>{if(e.pointerType!=="touch")return;P.delete(e.pointerId);clearTimeout(lp);lp=null;if(P.size<2)pinch=null;if(!P.size)pan=null};
+ cv.addEventListener("pointerup",up,true);cv.addEventListener("pointercancel",up,true);
+}
 }
 </script>
 </body>
