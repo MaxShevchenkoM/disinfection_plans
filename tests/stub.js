@@ -1,0 +1,8 @@
+(function(){const KB=window.__KB;let plan=(KB.plan_preprod||[])[0]||{id:"zvirpolis_1",doc:{items:[]},version:1};
+function B(t){const st={t,op:"select",single:false,filters:[]};const p={select(){return p},eq(k,v){st.filters.push([k,v]);return p},order(){return p},in(){return p},not(){return p},neq(){return p},is(){return p},match(){return p},
+ maybeSingle(){st.single=true;return p},single(){st.single=true;return p},update(v){st.op="update";st.val=v;return p},insert(v){st.op="insert";return p},upsert(v,o){st.op="upsert";st.val=v;st.oc=(o||{}).onConflict;return p},delete(){st.op="delete";return p},
+ then(res,rej){let data;if(t==="plan_preprod"||t==="plan_prod"){if(st.op==="update"){plan={...plan,doc:st.val.doc,version:plan.version+1};window.__saved=plan;data=[{version:plan.version,updated_at:new Date().toISOString()}]}else data=st.single?plan:[plan]}
+  else if(st.op==="upsert"&&/^product/.test(t)){const T=KB[t]=KB[t]||[];const v={...st.val};const keys=t==="product"?null:st.oc.split(",");let ex=t==="product"?T.find(x=>x.name.toLowerCase().trim()===v.name.toLowerCase().trim()):T.find(x=>keys.every(k=>(x[k]??"")===(v[k]??"")));if(ex)Object.assign(ex,v);else{ex={id:T.length+1,...v};T.push(ex)}data=st.single?{id:ex.id}:[ex]}
+  else if(st.op!=="select")data=[{id:1}];else{data=KB[t]||[];if(st.single)data=data[0]||null}
+  return Promise.resolve({data,error:null}).then(res,rej)}};return p}
+window.supabase={createClient(){return{from:B,rpc:async()=>({data:true,error:null}),auth:{getSession:async()=>({data:{session:{user:{email:"test@local"}}}}),onAuthStateChange(){},signOut:async()=>({}),signInWithOtp:async()=>({})},channel(){return{on(){return this},subscribe(){return this}}},removeChannel(){}}}};})();

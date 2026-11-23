@@ -5,8 +5,12 @@ cd "$(dirname "$0")"
 git fetch -q origin main preprod
 T=$(mktemp -d)
 mkdir -p "$T/preprod"
-git show origin/main:index.html > "$T/index.html"
-git show origin/preprod:index.html > "$T/preprod/index.html"
+# Сайт = index.html + css/ + js/ з кожної гілки (tests/ і службові файли не публікуються)
+site(){ local ref=$1 dst=$2; local paths; paths=$(git ls-tree --name-only "$ref" | grep -E '^(index\.html|css|js)$' || true); git archive "$ref" $paths | tar -x -C "$dst"
+  # мітка версії, щоб браузер не взяв старі css/js із кешу
+  local v; v=$(git rev-parse --short "$ref"); sed -i -E "s#(src|href)=\"(js/[^\"]+\.js|css/[^\"]+\.css)\"#\1=\"\2?v=$v\"#g" "$dst/index.html"; }
+site origin/main "$T"
+site origin/preprod "$T/preprod"
 echo 'window.PLAN_ENV={name:"prod",table:"plan_prod"};' > "$T/env.js"
 echo 'window.PLAN_ENV={name:"preprod",table:"plan_preprod"};' > "$T/preprod/env.js"
 touch "$T/.nojekyll"
