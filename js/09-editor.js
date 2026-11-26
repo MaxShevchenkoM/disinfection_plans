@@ -52,7 +52,7 @@ cv.addEventListener("pointerdown", e => {
     e.preventDefault();
     return;
   }
-  if (armK && act === "flow" && !bgMode) {
+  if (armK && act === "flow" && K[armK] && K[armK][0] === "flow" && !bgMode) {
     const p = pt(e);
     let q = [sn(p.x), sn(p.y)];
     if (drag && drag.poly) {

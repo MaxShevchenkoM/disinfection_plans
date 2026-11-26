@@ -68,6 +68,15 @@ SCENARIOS = [
         ("mclick", 250, 300), ("mclick", 403, 305), ("mclick", 400, 420), ("key", "Enter"), ("key", "Escape"),
         ("js", "document.querySelectorAll('#cv [data-oid]').length-window.__w0", 2),
     ]),
+    ("Інструмент стін не переходить у «Рух»", False, [
+        ("click", "#rtabs [data-rt=rooms]"), ("click", "#tabs [data-tab=wall]"), ("click", "#presets .ddb"),
+        ("js", "[...document.querySelectorAll('#presets .menu button')].find(x=>x.textContent.trim()==='Двері').click()", None),
+        ("click", "#rtabs [data-rt=flows]"), ("click", "#tabs [data-tab=flow]"),
+        ("js", "!!document.querySelector('#presets .armed')", False),
+        ("js", "window.__f0=document.querySelectorAll('#cv [data-oid]').length", None),
+        ("mclick", 300, 400), ("mclick", 450, 400), ("key", "Enter"),
+        ("js", "document.querySelectorAll('#cv [data-oid]').length===window.__f0", True),
+    ]),
     ("Зони: меню, ризики, аналіз", False, [
         ("click", "#rtabs [data-rt=zones]"),
         ("js", "document.querySelectorAll('#cv .hzl rect').length>0", True),

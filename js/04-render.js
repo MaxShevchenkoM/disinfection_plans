@@ -267,6 +267,7 @@ function drawSoon() {
 }
 // Перемалювати план і оновити панелі
 function draw() {
+  dropForeignTool();
   if (_raf) {
     cancelAnimationFrame(_raf);
     _raf = 0;

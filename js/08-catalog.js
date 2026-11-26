@@ -55,6 +55,7 @@ function add(n) {
 }
 // Кнопки «Додати» для поточного шару
 function presets() {
+  dropForeignTool();
   const pz = $("presets");
   pz.innerHTML = "";
   if (act === "flow" && armK) {

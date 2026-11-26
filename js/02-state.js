@@ -66,6 +66,13 @@ let armK = null,
   CM = null,
   FTB = null,
   RECENT = [];
+// Інструмент малювання (стіна, рух) належить своєму шару: при переході на інший шар чи вкладку його скидаємо
+function dropForeignTool() {
+  if (armK && (!K[armK] || K[armK][0] !== act)) {
+    armK = null;
+    if (drag && (drag.wall || drag.poly)) drag = null;
+  }
+}
 // Ключ нещодавніх елементів каталогу
 const RECK = "zvir-recent";
 // Унікальний ідентифікатор елемента для бази
